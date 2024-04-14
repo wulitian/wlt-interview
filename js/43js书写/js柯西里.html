@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>wulitian-study</title>
+</head>
+<body>
+<script>
+    // 函数的柯里化
+    function add(x,y,z){
+        return x+y+z;
+    }
+    function klh(fn,arr=[]) {
+        let length = fn.length;
+        return (...arg)=>{
+            arr = [...arr,...arg];
+            let paramsLen = arr.length;
+            if(length===paramsLen){
+                return add(...arr);
+            }else{
+                return klh(fn,arr);
+            }
+        }
+    }
+    add(1,2,3)
+    const k = klh(add);
+    console.log(k(1)(2)(3))
+
+</script>
+</body>
+</html>
