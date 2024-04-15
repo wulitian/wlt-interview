@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+	<meta charset="UTF-8">
+	<title>wulitian-study</title>
+	<style>
+		.day {
+			background: #eee;
+			color: black;
+		}
+		@media (prefers-color-scheme: dark) {
+			.day.dark-scheme {
+				background: #333;
+				color: white;
+			}
+		}
+		@media (prefers-color-scheme: light) {
+			.day.light-scheme {
+				background: white;
+				color: #555;
+			}
+		}
+		.day {
+			display: inline-block;
+			padding: 1em;
+			width: 7em;
+			height: 2em;
+			vertical-align: middle;
+		}
+	</style>
+</head>
+<body >
+<div class="day">Day (initial)</div>
+<div class="day light-scheme">Day (changes in light scheme)</div>
+<div class="day dark-scheme">Day (changes in dark scheme)</div>
+<br />
+</body>
+</html>

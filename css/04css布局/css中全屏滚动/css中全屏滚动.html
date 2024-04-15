@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>wulitian-study</title>
+    <style>
+        body {
+            width: 100vw;
+            height: 100vh;
+            padding: 0;
+            margin: 0;
+        }
+        .full-scroll {
+            width: 100vw;
+            height: 100vh;
+            /* 全屏滚动父属性 （y轴滚动，x轴同理） */
+            scroll-snap-type: y mandatory;
+            overflow-y: scroll;
+            overflow-x: hidden;
+            /* 为了更美观 去掉滚动条 */
+            -ms-overflow-style: none;
+            overflow: -moz-scrollbars-none;
+        }
+        /* 为了更美观 去掉滚动条 */
+        .full-scroll::-webkit-scrollbar {
+            /*width: 0 !important;*/
+        }
+        .scroll-item {
+            width: 100vw;
+            height: 100vh;
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+            font-size: 5em;
+            letter-spacing: 10px;
+            /* 让背景色和背景图片同时存在的属性 */
+            background-blend-mode: multiply;
+            /* 全屏滚动子属性 */
+            scroll-snap-align: start;
+        }
+        .scroll-item:nth-child(1) {
+            background-image: url("./1.jpeg");
+            background-color: teal;
+        }
+        .scroll-item:nth-child(2) {
+            background-image: url("./2.jpeg");
+            background-color: pink;
+        }
+        .scroll-item:nth-child(3) {
+            background-image: url("./3.jpeg");
+            background-color: orange;
+        }
+        .scroll-item:nth-child(4) {
+            background-image: url("./4.jpeg");
+            background-color: skyblue;
+        }
+        .scroll-item:nth-child(5) {
+            background-image: url("./5.jpeg");
+            background-color: palevioletred;
+        }
+    </style>
+</head>
+<body>
+<div class="full-scroll">
+    <section class="scroll-item">我要暴富！！！</section>
+    <section class="scroll-item">我要暴瘦！！！</section>
+    <section class="scroll-item">我要更美！！！</section>
+    <section class="scroll-item">再说一遍！！！</section>
+    <section class="scroll-item">我要暴富暴瘦更美！！！</section>
+</div>
+</body>
+</html>
+
+
+
