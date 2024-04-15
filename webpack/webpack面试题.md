@@ -3,7 +3,6 @@
 webpack最初实现了前端项目的模块化，起初前端都是以约定的方式进行划分的，这种形式会产生全局成员污染，模块与模块之间没有依赖关系，维护困难，没有私有空间，之后就出现了每个模块暴漏一个全局对象，这样可以解决模块依赖的的问题，后来又出现了立即执行函数的方式，这种方式不易维护，之中方式不受代码控制，难以维护，理想的方式就是页面中引入一个入口文件其余的模块通过代码控制按需引入（流行的就是commonjs，esmodule）,随着ts，less,scss等预处理器的前端项目变得十分复杂，需要通过模块化开发，使用一些特性提高开发效率，es6，ts，通过scss，less提高编写css的效率，监听文件变化实时反馈到浏览器，调高开发效率，js代码需要模块化，css需要模块化，图片资源需要模块化，开发完成还需要将代码压缩，合并，webpack刚好解决了这些问题。
 
 # 说说webpack的构建流程
-
 1. 初始化参数，从配置文件盒shell语句中读取与合并参数，得到最终的参数
 2. 开始编译，使用这些参数初始化compiler对象，加载所有配置插件，执行run方法开始编译
 3. 确认入口，根据配置的entry找到所有入口文件
@@ -13,7 +12,6 @@ webpack最初实现了前端项目的模块化，起初前端都是以约定的�
 7. 输出完成，再确认好输出内容后，根据配置确认输出的路径与文件名，把文件内容写到文件系统
 
 # 说说webpack常见的loader,解决了什么问题
-
 1. style-loader,将css添加到dmo内联样式中
 2. css-loader,允许css文件通过require的方式引入，并返回css
 3. less-loader,处理less
@@ -26,7 +24,6 @@ webpack最初实现了前端项目的模块化，起初前端都是以约定的�
 10. babel-loader,用babel来转换es6语法
 
 # 说说webpack常见的plugin,解决了什么问题
-
 1. html-webpack-plugin：在 dist 下生成 html 文件。简化 HTML 文件创建 (依赖于 html-loader)
 2. clean-webpack-plugin: 目录清理。把 dist 删除再生成打包结果
 3. copy-webpack-plugin 因为 public 文件下的资源是固定的，直接拷贝到编译后的文件夹引入使用就可以，例如 favicon.ico
@@ -40,7 +37,6 @@ webpack最初实现了前端项目的模块化，起初前端都是以约定的�
 12. Defineplugin: 允许编译时创建配置全局对象
 
 # 介绍一下webpack的生命周期
-
 1. beforeRnu 在webpack开始读取配置之前调用
 2. run 在webpack编译时调用
 3. watchRun 在使用webpack-dev-se5rver运行时调用
@@ -54,19 +50,14 @@ webpack最初实现了前端项目的模块化，起初前端都是以约定的�
 11. assetEmitted 所有资源都已经输出到目录后调用
 
 # 说说webpack中loader与plugin的区别，介绍编写思路
-
 概念上：
-
 1. loader是文件加载器，能够加载资源文件，并对这些文件进行一些处理，编译压缩等等，最终一起打包到指定文件中
 2. plugin 赋予webpack各种灵活的功能，例如打包优化，资源管理，环境变量注入等等
-
 运行时机上：
-
 1. loader运行在打包文件之前
 2. plugin在整个编译周期都起作用
 
 # 说说webpack的热更新是如何做到的，原理是什么
-
 1. webpack compiler 将js源代码编译成bundle.js
 2. HMR Server: 将热更新的文件传输给HMR Runtime
 3. Bundle Server: 静态资源文件服务器，提供文件访问，路径
@@ -75,27 +66,19 @@ webpack最初实现了前端项目的模块化，起初前端都是以约定的�
 6. 在HMR Runtime和HMR Server 之间建立websocket
 
 # 说说webpack中proxy的工作原理，为什么能解决跨域
-
 1. proxy工作原理实质上是利用http-proxy-middleware 这个http代理中间件，实现请求转发给其他服务器
 2. 在开发阶段， webpack-dev-server 会启动一个本地开发服务器，所以我们的应用在开发阶段是独立运行在
    localhost的一个端口上，而后端服务又是运行在另外一个地址上所以在开发阶段中，由于浏览器同源策略的原因，当本地访问后端就会出现跨域请求的问题
    通过设置webpack
    proxy实现代理请求后，相当于浏览器与服务端中添加一个代理者当本地发送请求的时候，代理服务器响应该请求，并将请求转发到目标服务器，目标服务器响应数据后再将数据返回给代理服务器，最终再由代理服务器将数据响应给本地在代理服务器传递数据给本地浏览器的过程中，两者同源，并不存在跨域行为，这时候浏览器就能正常接收数据
 
-# dev-server是如何跑起来的
-
 # 说说如何借助webpack来优化前端性能
-
 1. js，css，html, 图片，文件压缩
-
 2. Tree Shaking
-
 3. 代码分离
-
 4. 内联chunk
 
 # 如何提高webpack的构建速度
-
 1. 优化 loader 配置
 2. 合理使用 resolve.extensions
 3. 优化 resolve.modules
@@ -153,6 +136,7 @@ webpack最初实现了前端项目的模块化，起初前端都是以约定的�
 
 # webpack做过哪些优化，开发效率方面，打包策略方面
 
+# dev-server是如何跑起来的
 
 
 
