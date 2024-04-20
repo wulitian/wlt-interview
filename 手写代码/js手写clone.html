@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>wulitian-study</title>
+</head>
+<body>
+<script>
+    const obj = {
+        re: /hello/,
+        f() {},
+        date: new Date(),
+        map: new Map(),
+        list: [1, 2, 3],
+        a: 3,
+        b: 4,
+    };
+    const obj2 = { loop2: obj, name: "obj2" };
+    obj.loop = obj2;
+    function deepClone(source, cache = new WeakMap()) {
+        //原始类型或函数直接返回
+        if (typeof source !== "object") {
+            return source;
+        }
+        //加入缓存解决循环引用
+        if (cache.has(source)) {
+            return cache.get(source);
+        }
+        let res = new source.constructor();
+        cache.set(source, res);
+
+        //处理JS内置数据结构：Array、Map、Set、Object
+        if (source instanceof Array) {
+            source.forEach((v) => {
+                res.push(deepClone(v, cache));
+            });
+        } else if (source instanceof Map) {
+            for (const [k, v] of source) {
+                res.set(k, deepClone(v, cache));
+            }
+        } else if (source instanceof Set) {
+            for (const v of source) {
+                res.add(deepClone(v, cache));
+            }
+        } else if (Object.prototype.toString.call(source) == "[object Object]") {
+            for (const key in source) {
+                res[key] = deepClone(source[key], cache);
+            }
+        } else {
+            //处理自定义对象（需遵循协议new constructors时为深拷贝）
+            res = new source.constructor(source);
+        }
+
+        return res;
+    }
+    const newObj = deepClone(obj);
+    console.log(newObj);
+
+</script>
+</body>
+</html>

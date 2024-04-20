@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>wulitian-study</title>
+</head>
+<body>
+<script>
+    // $ curl https://shanyue.tech/api/user?id=100
+    // {
+    //     "id": 100,
+    //     "name": "shanyue",
+    //     "wechat": "xxxxx",
+    //     "phone": "183xxxxxxxx"
+    // }
+    function jsonp_simple({ url, onData, params }) {
+        const script = document.createElement("script");
+        // 一、默认 callback 函数为 padding(高级写法就是把padding换成随机的值这样就不会全局变量污染了)
+        script.src = `${url}?${JSON.stringify({ callback: "padding", ...params })}`;
+        // 二、使用 onData 作为 window.padding 函数，接收数据
+        window["padding"] = onData;
+        // 三、动态加载脚本
+        document.body.appendChild(script);
+    }
+    jsonp_simple({
+        url: "http://localhost:10010",
+        params: { id: 10000 },
+        onData(data) {
+            console.log(1111)
+            console.log("Data:", data);
+        },
+    });
+    console.log(window.padding)
+</script>
+</body>
+</html>
