@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>表单焦点切换</title>
+</head>
+<body>
+
+<form id="myForm">
+    <label for="name">姓名：</label>
+    <input type="text" id="name" name="name"><br><br>
+    <label for="email">邮箱：</label>
+    <input type="email" id="email" name="email"><br><br>
+    <label for="message">留言：</label><br>
+    <textarea id="message" name="message" rows="4" cols="50"></textarea><br><br>
+    <button type="submit">提交</button>
+</form>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('myForm');
+
+        // 监听键盘事件
+        document.addEventListener('keydown', function(event) {
+            const activeElement = document.activeElement;
+            const elements = form.elements;
+            let nextElement = null;
+
+            // 判断用户是否按下了方向键
+            switch (event.key) {
+                case 'ArrowUp':
+                    nextElement = elements[getIndex(activeElement) - 1];
+                    break;
+                case 'ArrowDown':
+                    nextElement = elements[getIndex(activeElement) + 1];
+                    break;
+                case 'ArrowLeft':
+                    if (activeElement.tagName === 'TEXTAREA') {
+                        break;
+                    }
+                case 'ArrowRight':
+                    if (activeElement.tagName === 'TEXTAREA') {
+                        break;
+                    }
+                    nextElement = activeElement.tagName === 'TEXTAREA' ? null : activeElement.nextElementSibling;
+                    break;
+            }
+
+            if (nextElement && nextElement.tagName !== 'BUTTON') {
+                event.preventDefault(); // 阻止默认行为（防止页面滚动）
+                nextElement.focus(); // 设置焦点到下一个元素
+            }
+        });
+
+        // 获取元素在表单中的索引
+        function getIndex(element) {
+            return Array.from(form.elements).indexOf(element);
+        }
+    });
+</script>
+
+</body>
+</html>

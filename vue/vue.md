@@ -1577,83 +1577,509 @@ new Vue({
 #### 说说你对keep-alive的理解是什么？
 
 ### ---------axios---------
-#### 为何官方推荐使用axios而不用vue-resource？
 #### 你了解axios的原理吗？有看过它的源码吗？
+#### 为何官方推荐使用axios而不用vue-resource？
+1.vue-resources不再更新了，vue作者尤大推荐axios。
+2.axios更加强大
+3.axios就是一个基于ES6的Promise的网络请求库，其实说干净了就是一个打包好的XMLHttpRequests，也就是说，这个也是一个ajax库。
+4.axios
+在浏览器里建立XHR
+通过nodejs进行http请求
+转换或者拦截请求数据或响应数据
+支持Promise的API
+可以取消请求
+自动转换JSON
+可以防御XSRF攻击！
+5.vue-resources只提供了浏览器版本
 #### 你有封装过axios吗？主要是封装哪方面的？
+1. 和 后端协商好一些约定，请求头，状态码，请求超时时间
+2. 设置接口请求前缀：根据开发、测试、生产环境的不同，前缀需要加以区分
+3. 请求头 : 来实现一些具体的业务，必须携带一些参数才可以请求(例如：会员业务)
+4. 状态码: 根据接口返回的不同status ， 来执行不同的业务，这块需要和后端约定好
+4. 请求方法：根据get、post等方法进行一个再次封装，使用起来更为方便
+5. 请求拦截器: 根据请求的请求头设定，来决定哪些请求可以访问
+6. 响应拦截器： 这块就是根据 后端返回来的状态码判定执行不同业务
 #### 如何中断axios的请求？
+有时候，需要取消或中断 axios 请求，比如在上传一个大文件时，需要中断或者重新选择，这时再让之前的请求继续，就会无意义地占用带宽。
+通过 cancel token 取消请求
+第一步，创建 cancelTokenSource 对象，它有两个属性：
+token: 传给请求，标记操作取消该请求。
+cancel: 是个方法，需要取消时调用
+```
+const cancelTokenSource = axios.CancelToken.source();
+```
+第二步，发起请求时传入 token ；
+```
+axios.get('/foo', {
+  cancelToken: cancelTokenSource.token
+});
+```
+第三步，需要取消时执行 cancel 方法
+```js
+cancelTokenSource.cancel();
+```
 #### axios是什么？怎样使用它？怎么解决跨域的问题？
+axios 的是一种异步请求，用法和 ajax 类似，安装 npm install axios --save 即可使用，请求中包括get,post,put, patch ,delete 等五种请求方式，解决跨域可以在请求头中添加 Access-Control-Allow-Origin，也可以在 index.js 文件中更改 proxyTable 配置等解决跨域问题.
 #### 如果将axios异步请求同步化处理？
-
+async await
 ### ---------vue-cli---------
 #### vue-cli提供了的哪几种脚手架模板？
+vue-cli2.x 好像有个simple和完整版的
+vue-cli3.x 提供了自定义装箱配置 可以选装
+    TypeScript
+    PWA
+    lint
+    e2e
+    css 预处理
+    router
+    vuex
 #### vue-cli工程中常用的npm命令有哪些？
-#### 在使用vue-cli开发vue项目时，自动刷新页面的原理你了解吗？
-#### vue-cli3插件有写过吗？怎么写一个代码生成插件？
-#### vue-cli生成的项目可以使用es6、es7的语法吗？为什么？
-#### vue-cli怎么解决跨域的问题？
-#### vue-cli中你经常的加载器有哪些？
-#### 你知道什么是脚手架吗？
-#### 说下你了解的vue-cli原理？你可以自己实现个类vue-cli吗？
-#### 怎么使用vue-cli3创建一个项目？
-#### vue-cli3你有使用过吗？它和2.x版本有什么区别？
-#### vue-cli默认是单页面的，那要弄成多页面该怎么办呢？
-#### 不用vue-cli，你自己有搭建过vue的开发环境吗？流程是什么？
+1. 下载 node_modules 资源包的命令：
+```
+npm install 安装 package.json 中 dependencies 字段和 devDependencies 字段中的所有模块
+npm install --production 只安装 dependencies 字段的模块。
 
+```
+2. 启动 vue-cli 开发环境的 npm命令：
+```
+npm run dev 或 npm start
+```
+3. vue-cli 生成 生产环境部署资源 的 npm命令：
+```
+npm run build
+```
+4. 用于查看 vue-cli 生产环境部署资源文件大小的 npm命令：
+```
+npm run build --report
+```
+5. 用于安装开发环境依赖的包，将包信息添加到 package.json 里的 devDependencies节点
+```
+npm install --save-dev axios
+或
+npm install -D axios
+或
+npm i -D axios
+install 可以简写为 i  --save-dev 可以简写为 -D
+```
+6. 用于安装生产环境依赖的包，将包信息添加到 package.json 里的dependencies节点
+```
+npm install --save axios
+或
+npm install -S axios
+或
+npm i -S axios
+install 可以简写为 i  --save 可以简写为 -S
+```
+7. 删除包
+```
+npm uninstall 模块：删除模块，但不删除模块留在package.json中的对应信息
+npm uninstall 模块 --save： 删除模块，同时删除模块留在package.json中dependencies下的对应信息
+npm uninstall 模块 --save-dev： 删除模块，同时删除模块留在package.json中devDependencies下的对应信息
+```
+#### 在使用vue-cli开发vue项目时，自动刷新页面的原理你了解吗？
+自动刷新页面并不是vue-cli的功能，而是webpack的hot-module-replacement-plugin插件在做这件事，这个插件是webpack自带的插件，用来做hmr的。如果需要配置hmr只需要在webpack.config.js的devServer字段写 下面的配置即可。
+{
+   contentBase: 服务器可以访问的根目录,
+   hot:true, //开启热模块替换也就是hmr
+   hotOnly:true //不刷新页面，只做hmr
+}
+而由于vue-cli3集成了webpack的配置，所以vue.config.js里面也有这个属性，配置写法是一样的
+#### vue-cli生成的项目可以使用es6、es7的语法吗？为什么？
+vue-cli 配置了babel,可以将es6,es7....etc在webpack打包的时候转换成es5的代码，所以上线的时候没有问题。但是脚手架只是配置了一些默认常见的用法， 可以根据babel官网配置一些尚在草案中的语法
+#### vue-cli怎么解决跨域的问题？
+在 vue.config.js 文件中配置 proxy 属性，将 API 请求代理到 API 服务器上，设置 devServer.proxy
+#### vue-cli中你经常的加载器有哪些？
+style,css,vue,postcss,url等
+#### 怎么使用vue-cli3创建一个项目？
+```
+npm install -g @vue/cli
+vue create hello-world
+```
+#### vue-cli3你有使用过吗？它和2.x版本有什么区别？
+Vue CLI 的包名称由 vue-cli 改成了 @vue/cli
+vue cli 3 npm install -g @vue/cli
+vue create hello-world
+vue cli 2.x npm install -g vue-cli
+vue init webpack my-project
+#### vue-cli默认是单页面的，那要弄成多页面该怎么办呢？
+在vue.config.js配置文件下的pages配置项中配置多个页面，每个页面有一个对应的js入口
+```
+  pages:{
+     index:{
+       entry:'./src/main.js',
+       template: './public/index.html',
+       title:'首页'
+     },
+     login:{
+       entry:'./src/pages/login.js',
+       template:'./public/login.html',
+       title:'登录'
+     }
+   }
+```
+#### 不用vue-cli，你自己有搭建过vue的开发环境吗？流程是什么？
+#### 说下你了解的vue-cli原理？你可以自己实现个类vue-cli吗？
 ### ---------vue-router---------
 #### vue-router怎么重定向页面？
+1. 重定向也是通过 routes 配置来完成，下面例子是从 /home 重定向到 /：
+const routes = [{ path: '/home', redirect: '/' }]
+2. 重定向的目标也可以是一个命名的路由：
+const routes = [{ path: '/home', redirect: { name: 'homepage' } }]
+3. 甚至是一个方法，动态返回重定向目标：
+const routes = [
+   {
+      // /search/screens -> /search?q=screens
+      path: '/search/:searchText',
+      redirect: to => {
+      // 方法接收目标路由作为参数
+      // return 重定向的字符串路径/路径对象
+      return { path: '/search', query: { q: to.params.searchText } }
+   },
+]
 #### vue-router怎么配置404页面？
+```
+{
+   path: '/:catchAll(.*)',
+   name: 404,
+   component: ()=> import('../views/404.vue')
+}
+```
 #### 切换路由时，需要保存草稿的功能，怎么实现呢？
+```
+beforeRouteLeave (to, from, next) {
+  const answer = window.confirm('Do you really want to leave? you have unsaved changes!')
+  if (answer) {
+    next()
+  } else {
+    next(false)
+  }
+}
+```
 #### vue-router路由有几种模式？说说它们的区别？
+hash模式
+1、url路径会出现 # 字符
+2、hash值不包括在 HTTP 请求中，它是交由前端路由处理，所以改变hash值时不会刷新页面，也不会向服务器发送请求
+3、hash值的改变会触发hashchange事件
+history模式
+1、整个地址重新加载，可以保存历史记录，方便前进后退
+2、使用 HTML5 API（旧浏览器不支持）和 HTTP服务端配置，没有后台配置的话，页面刷新时会出现404
 #### vue-router有哪几种导航钩子（ 导航守卫 ）？
+beforeRouteEnter 在进入当前组件对应的路由前调用
+beforeRouteUpdate 在当前路由改变，但是该组件被复用时调用
+beforeRouteLeave 在离开当前组件对应的路由前调用
 #### 说说你对router-link的了解
+vue-router插件的其中一个组件, 用于跳转路由, 类似于a标签, 它一般也会渲染成a标签, 但是可以通过tag来变更默认渲染元素, 通过to来跳转
 #### vue-router如何响应路由参数的变化？
-#### 你有看过vue-router的源码吗？说说看
+```
+watch: {
+   $route: {
+      handler (to, from){
+      console.log(to)
+      console.log(from)
+   },
+   deep: true
+}
+```
 #### 切换到新路由时，页面要滚动到顶部或保持原先的滚动位置怎么做呢？
+1. 路由是history的情况下支持scrollBehavior
+```
+const router = new VueRouter({
+  routes: [...],
+  scrollBehavior (to, from, savedPosition) {
+    // return 期望滚动到哪个的位置
+  }
+})
+```
+2. watch的方式实现
+```
+ watch:
+ {
+  '$route':function(to,from){
+　　　　document.body.scrollTop = 0；
+       document.documentElement.scrollTop = 0;
+     }
+  }
+```
 #### 在什么场景下会用到嵌套路由？
+嵌套结构较多时需要用到嵌套路由
 #### 如何获取路由传过来的参数？
+1. 路由地址传参
+```
+{
+   path: '/user/:id',
+   name: 'user',
+   component: user
+}
+this.$router.push({
+ path: '/user/123',
+})
+this.$route.params.id
+刷新参数不丢失
+```
+2. params传参
+```
+{
+     path: '/user',
+     name: 'user',
+     component: user
+}
+this.$router.push({
+   name: 'user',
+   params: {
+     id: id
+   }
+ })
+this.$route.params.id
+刷新参数丢失
+```   
+3. query传参
+```
+{
+  path: '/user',
+  name: 'user',
+  component: user
+}
+this.$router.push({
+   path: '/user',
+   query: {
+     id: id
+   }
+ })
+this.$route.query.id
+刷新参数不丢失
+```
 #### 说说active-class是哪个组件的属性？
+active-class是 vue-router模块中router-link 组件中的属性，主要作用是用来实现选中样式的切换
 #### 在vue组件中怎么获取到当前的路由信息？
-#### vur-router怎么重定向？
-#### 怎样动态加载路由？
+this.$route可以获取，例如：this.$route.path
 #### 怎么实现路由懒加载呢？
-#### 如果让你从零开始写一个vue路由，说说你的思路
+```
+const UserDetails = () =>
+ import(/* webpackChunkName: "group-user" */ './UserDetails.vue')
+const UserDashboard = () =>
+ import(/* webpackChunkName: "group-user" */ './UserDashboard.vue')
+const UserProfileEdit = () =>
+ import(/* webpackChunkName: "group-user" */ './UserProfileEdit.vue')
+const router = new Router({
+   routes: [
+      {
+         path: '/list',
+         component: (resolve) => {
+            // 这里是你的模块 不用import去引入了
+            require(['@/components/list'], resolve)
+         }
+      }
+   ]
+})
+const List = resolve => require.ensure([], () => resolve(require('@/components/list')),'list');
+// 路由也是正常的写法  这种是官方推荐的写的 按模块划分懒加载 
+const router = new Router({
+   routes: [
+      {
+         path: '/list',
+         component: List,
+         name: 'list'
+      }
+   ]
+}))
+```
 #### 说说vue-router完整的导航解析流程是什么？
+1.导航被触发。
+2.在失活的组件里调用离开beforeRouteLeave守卫。
+3.调用全局的 beforeEach 守卫。
+4.在重用的组件里调用 beforeRouteUpdate 守卫（2.2+）。
+5.在路由配置里调用 beforeEnter。
+6.解析异步路由组件。
+7.在被激活的组件里面调用 beforeRouterEnter。
+8.调用全局的 beforeResolve 守卫（2.5+）。
+9.导航被确认。
+10.调用全局的 afterEach钩子。
+11.触发 DOM 更新。
+12.用创建好的实例调用 beforeRouteEnter 守卫中传给 next 的回调函数。
 #### 路由之间是怎么跳转的？有哪些方式？
+1 根据路由路径：
+```
+<router-link to = "/page">跳转到page页面</router-link>
+```
+2. 根据路由名称
+```
+<router-link ：to = "{ name: 'page'}">跳转到page页面</router-link>
+```
+3. this.$router.push()
+```
+this.$router.push({ path: '/home', query: { id: '001' } })  
+// 根据路由路径 + query 的方式跳转传参
+this.$router.push({ name: 'home', query: { id: '001' } })   
+// 根据路由名称 + query 的方式跳转传参
+this.$router.push({ name: 'home', params: { id: '001' } })  
+// 根据路由名称 + params 的方式跳转传参
+```
 #### 如果vue-router使用history模式，部署时要注意什么？
+```
+app.get('*', (req, res) => {
+  res.sendFile(path.resolve(__dirname, 'public', 'index.html'));
+});
+```
 #### route和router有什么区别？
+router 可以用来动态地改变URL，从而实现页面间的无刷新跳转。 
+因此，route 和router 在功能上有所不同，
+route 主要用于获取当前路由信息，
+router 则是用于进行路由操作，例如跳转到指定的路由、前进、后退等
 #### vue-router钩子函数有哪些？都有哪些参数？
+每个守卫方法接收三个参数：
+to: Route: 即将要进入的目标 路由对象
+from: Route: 当前导航正要离开的路由
+next: Function: 一定要调用该方法不然会阻塞路由。执行效果依赖 next 方法的调用参数。next()方法接收的参数：
+next(): 进行管道中的下一个钩子。
+next(false): 中断当前的导航。回到到 from 路由对应的地址。
+next('/') 或者 next({ path: '/' }): 跳转到一个不同的地址。
+next(error): 导航终止，且该错误会被传递给 router.onError() 注册过的回调。
+1. 全局路由钩子
+   beforeEach(to, from, next)前置守卫
+   beforeResolve(to, from, next)解析守卫
+   afterEach(to, from)后置守卫
+2. 路由独享钩子
+   beforeEnter(to, from, next)
+3. 组件内导航钩子
+   beforeRouteEnter：在渲染该组件的对应路由被 confirm 前调用
+   beforeRouteUpdate：在当前路由改变，但是该组件被复用时调用
+   beforeRouteLeave：导航离开该组件的对应路由时调用
+   beforeRouteEnter 不能获取组件实例 this，因为当守卫执行前，组件实例被没有被创建出来，剩下两个钩子则可以正常获取组件实例 this
 #### vue-router是用来做什么的？它有哪些组件？
+Vue-router是Vue.js的官方路由库，用于单页面应用程序（SPAs）。它允许您定义不同的URL地址以映射到特定的Vue组件，并且支持动态匹配、嵌套路由、导航钩子等。
+主要组件包括：
+Router：根实例，用于整个应用程序的路由配置。
+Route：表示单个路由规则，映射到特定的组件。
+Router-Link：渲染可点击的超链接，用于导航到其它路由。
+Router-View：代表当前激活的路由组件的渲染位置。
+#### 你有看过vue-router的源码吗？说说看
+#### 如果让你从零开始写一个vue路由，说说你的思路
 
 ### ---------vuex---------
 #### 你有写过vuex中store的插件吗？
+Vuex插件是一个函数，接受store作为唯一参数。我们可以在插件中访问store的state、getters、mutations和actions，并在插件中监听mutation的提交或者在提交mutation之前执行一些操作。
+```
+const myPlugin = store => {
+  // 在每次 mutation 之后调用
+  store.subscribe((mutation, state) => {
+    console.log(`mutation ${mutation.type}`);
+  });
+
+  // 在提交 mutation 之前调用
+  store.subscribeAction((action, state) => {
+    console.log(`action ${action.type}`);
+  });
+};
+export default myPlugin;
+```
 #### 你有使用过vuex的module吗？主要是在什么场景下使用？
+把状态全部集中在状态树上，非常难以维护。
+按模块分成多个module，状态树延伸多个分支，模块的状态内聚，主枝干放全局共享状态
 #### vuex中actions和mutations有什么区别？
+actions主要用于响应组件中的动作，通过 commit( )来触发 mutation 中函数的调用, 间接更新 state，不是必须存在的；
+mutations主要用于操作修改数据，是必须存在的；
+actions可以进行异步操作，可用于向后台提交数据或者接受后台的数据；
+mutations中是同步操作，不能写异步代码、只能单纯的操作 state ，用于将数据信息写在全局数据状态中缓存，不能异步操作；
 #### vuex使用actions时不支持多参数传递怎么办？
-#### 你觉得vuex有什么缺点？
+vuex使用actions时不支持多参数传递怎么办？
+"在 Vuex 中，虽然 actions 不支持直接传递多个参数，但可以通过传递一个包含多个参数的对象来实现类似的功能。例如，将多个参数打包成一个对象，然后在 action 中解构该对象来获取各个参数。
+```
+// 在组件中 dispatch action 时传递多个参数
+this.$store.dispatch('myAction', { param1: 'value1', param2: 'value2' });
+// 在 Vuex store 中的 action 中解构参数对象
+actions: {
+myAction({ commit }, { param1, param2 }) {
+// 在这里可以使用 param1 和 param2 参数
+}
+```
+#### 你觉得vuex有什么优点缺点？
+优点：
+在vuex中，集中式存储和管理共享的数据，便于开发和维护
+能够高效的实现组件之间的数据共享和传输，提高开发效率（就不用管是父子组件传值还是兄弟组件，还是祖先后代，直接高效的传值）
+存储在vuex中的数据都是响应式的，能够实时的保持数据和页面的同步（比如localstorage就是办不到的）
+缺点：
+刷新浏览器，vuex中的state会重新变为初始状态
+1.插件vuex-persistedstate（我个人没用过）
+2.在刷新前将vuex中的数据直接保存到浏览器缓存中，页面刷新后，在页面刷新的时候再次请求远程数据，使之动态更新vuex数据，具体步骤：监听页面刷新事件，在页面刷新之前，将vuex里的数据存到sessionStorage里，然后在页面刷新之后，调取获取数据的接口，在接口还没有返回数据的时候，就先用sessionStorage里的数据，等接口返回数据后，就使用接口返回的，顺便更新vuex里的数据
 #### 你觉得要是不用vuex的话会带来哪些问题？
+1.传参数时对于多层嵌套的组件将会非常繁琐，对于兄弟组件更是无法传递
+2.当不同视图的行为需要去修改数据时，无法追踪到数据的变更方向，导致无法维护代码
 #### vuex怎么知道state是通过mutation修改还是外部直接修改的？
+通过$watch监听mutation的commit函数中_committing是否为true
 #### 请求数据是写在组件的methods中还是在vuex的action中？
+将数据请求写在组件的methods中还是在Vuex的action中，取决于具体的项目需求和组件的复杂度。对于小型项目或者对数据状态要求不高的组件，可以考虑使用组件的methods来请求数据。而对于需要在多个组件之间共享数据或者进行复杂状态管理的项目，使用Vuex的action来请求数据更为合适。
 #### 怎么监听vuex数据的变化？
-#### vuex的action和mutation的特性是什么？有什么区别？
+可以通过watch选项或者watch方法监听状态
+可以使用vuex提供的API：store.subscribe()
+watch选项方式，可以以字符串形式监听$store.state.xx；subscribe方式，可以调用store.subscribe(cb),回调函数接收mutation对象和state对象，这样可以进一步判断mutation.type是否是期待的那个，从而进一步做后续处理。
+watch方式简单好用，且能获取变化前后值，首选；subscribe方法会被所有commit行为触发，因此还需要判断mutation.type，用起来略繁琐，一般用于vuex插件中。
+```
+const app = createApp({
+   watch: {
+      '$store.state.counter'() {
+         console.log('counter change!');
+      }
+   }
+})
+store.subscribe((mutation, state) => {
+    if (mutation.type === 'add') {
+      console.log('counter change in subscribe()!');
+    }
+})
+```
 #### 页面刷新后vuex的state数据丢失怎么解决？
+办法一：将vuex中的数据直接保存到浏览器缓存中（sessionStorage、localStorage、cookie）
+办法二：在页面刷新的时候再次请求远程数据，使之动态更新vuex数据
 #### vuex的store有几个属性值？分别讲讲它们的作用是什么？
+有五种，分别是 State、Getter、Mutation、Action、Module。
+state
+用于存储应用程序的状态，也就是数据。state是响应式的，只能通过提交mutations来修改。
+getters
+用于从state中派生出新的状态，类似于Vue组件中的计算属性。当依赖的state发生变化时，会重新计算getter的值。getter的返回值可以缓存起来，避免多次重复计算
+mutations
+在Vuex中，state是只读的，也就是说我们不能直接修改Vue应用程序的状态。为了修改Vuex中的state，必须通过提交(mutating)一个mutation来实现。
+用于处理异步操作或批量操作，可以通过提交mutations间接地修改state。当我们需要进行异步操作时，就需要使用Vuex中的actions。在Vue组件中，我们可以直接调用异步操作的方法，而在Vuex中，我们必须先定义一个action来执行该异步操作，并通过提交mutation来修改state。
+Mutation是一个同步函数，用于操作store中的state数据。它们接收当前state作为第一个参数，以及可能存在的负载payload作为第二个参数。Mutation只能通过commit方法触发，而且必须显式地调用。
+```
+const mutations = {
+  increment(state, payload) { // 修改state的count属性
+    state.count += payload.amount;
+  }
+}
+// 在组件中提交该mutation
+this.$store.commit('increment', { amount: 10 });
+```
+actions
+用于处理异步操作或批量操作，可以通过提交mutations间接地修改state。当我们需要进行异步操作时，就需要使用Vuex中的actions。在Vue组件中，我们可以直接调用异步操作的方法，而在Vuex中，我们必须先定义一个action来执行该异步操作，并通过提交mutation来修改state。
+Action通常是异步的操作，但也可以是同步操作，它们接收一个context对象作为参数，该对象包含和store实例具有相同方法和属性的对象。此外，actions可以返回一个Promise对象，表示异步操作的结果，或者可以返回一个值，表示同步操作的结果。
+```
+// 定义一个名为loadData的异步操作
+const actions = {
+  loadData(context) {
+    axios.get('/api/data')
+      .then(response => {
+        // 数据成功返回，提交一个mutation来修改state
+        context.commit('setResult', response.data);
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  }
+}
+
+// 在组件中分发该action
+this.$store.dispatch('loadData');
+```
+modules
+用于将store拆分成更小的单元，每个模块都有自己的state、mutations、getters和actions，与整个store结构相同，可以进行嵌套。这些模块之间可以进行命名空间隔离，使其在使用上更加易于管理。
 #### vuex的state、getter、mutation、action、module特性分别是什么？
+State（状态）：State 是应用中的单一数据源，即存储应用中的所有状态变量。在 Vuex 中，State 是响应式的，当 State 发生变化时，相关的组件也会自动更新。
+Getter（获取器）：Getter 是用于从 State 中派生出一些新的状态变量的函数。Getter 可以对 State 进行计算或过滤，然后返回派生出的新状态，供组件使用。
+Mutation（突变）：Mutation 是用于修改 State 的唯一方式。每个 Mutation 都是一个函数，用于对 State 进行同步修改。Mutation 必须是同步函数，因此不能包含异步操作。
+Action（动作）：Action 类似于 Mutation，用于提交 Mutation 来修改 State。不同之处在于，Action 可以包含异步操作，可以在 Action 中执行异步任务后再提交 Mutation。
+Module（模块）：Module 是将 Vuex 拆分为多个模块的方式，每个模块都有自己的 State、Getter、Mutation 和 Action。通过模块化管理，可以更好地组织和维护大型的 Vuex 应用
 #### 你理解的vuex是什么呢？哪些场景会用到？不用会有问题吗？有哪些特性？
-#### 使用vuex的优势是什么？
-#### 有用过vuex吗？它主要解决的是什么问题？推荐在哪些场景用？
+状态管理, 当项目中有大量组件共用到一些状态的时候, 我就会考虑用.
+其实不是每个项目都需要
+不用就是参数控制比较麻烦, 比如多个兄弟组件公用参数.
 
-### ---------ElementUI---------
-#### ElementUI是怎么做表单验证的？在循环里对每个input验证怎么做呢？
-#### 你有二次封装过ElementUI组件吗？
-#### ElementUI怎么修改组件的默认样式？
-#### ElementUI的穿梭组件如果数据量大会变卡怎么解决不卡的问题呢？
-#### ElementUI表格组件如何实现动态表头？
-#### ElementUI使用表格组件时有遇到过问题吗？
-#### 有阅读过ElementUI的源码吗？
-#### 项目中有使用过ElementUI吗？有遇到过哪些问题？它的使用场景主要是哪些？
-#### 有用过哪些vue的ui？说说它们的优缺点？
-
-### ---------mint-ui---------
-#### mint-ui使用过程中有没有遇到什么坑？怎么解决的？
-#### 说出几个mint-ui常用的组件
-#### mint-ui是什么？你有使用过吗？
