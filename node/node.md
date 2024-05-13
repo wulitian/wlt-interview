@@ -92,7 +92,72 @@ Node.js 也提供了worker_threads模块，可以创建真正的多线程应用�
 #### Node应用中如何查看gc的日志
 通过开启参数 --trace-gc 与 --trace-gc-verbose
 #### 简述node/v8中的垃圾回收机制
-
+1. v8的功能
+每个浏览器都有自己的JS引擎，而谷歌的Chrome浏览器使用的是V8这种引擎。 Js引擎的作用是将JavaScript编译成本地机器代码来供CPU执行。
+2. 高级代码是如何执行的
+   解释器执行的启动速度快,但是执行时的速度慢 
+   一段代码=》解析器=》中间代码=》解析器=》输出结果
+   编译执行的启动速度慢,但是执行时的速度快
+   一段代码=》解析器=》中间代码=》编译器=》二进制代码=》输出结果
+3. V8执行Js
+   V8采用了一种权衡策略，在启动过程中采用了解释执行的策略，但是如果某段代码的执行频率超过一个值，那么V8就会采用优化编译器将其编译成执行效率更加高效的机器代码。
+   当某段代码被标记为热点代码后，V8就会将这段字节码丢给优化编译器，优化编译器会在后台将字节码编译为二进制代码，然后再对编译后的二进制代码执行优化操作，优化后的二进制机器代码的执行效率会得到大幅提升。如果下面再执行到这段代码时，那么V8会优先选择 优化之后的二进制代码，这样代码的执行速度就会大幅提升。
+   不过，和静态语言不同的是，JavaScript是一种非常灵活的动态语言，对象的结构和属性是可 以在运行时任意修改的，而经过优化编译器优化过的代码只能针对某种固定的结构，一旦在 执行过程中，对象的结构被动态修改了，那么优化之后的代码势必会变成无效的代码，这时候优化编译器就需要执行反优化操作，经过反优化的代码，下次执行时就会回退到解释器解释执行。
+4. v8执行js的流程整理
+   初始化基础环境
+   解析源码生成AST和作用域
+   依据AST和作用域生成字节码
+   解释执行字节码
+   监听热点代码
+   优化热点代码为二进制的机器代码
+   反优化热点代码为二进制的机器代码
+5. V8的内存结果
+   V8的内存空间主要分成了堆内存和栈内存
+   其中堆内存分为以下几块
+   large object space 大于默认定义大小的空间的变量，就会存放在这里
+   code space 代码空间(JIT), 即时编译器(我们刚刚提到的一种混合编译的方式)，相当于跑代码
+   cell space | property space | map space
+   新生代空间
+   老生代空间
+6. 内存大小
+   新老生代内存空间的大小主要和操作系统有关
+   • 64位操作系统是1.4G，32位是0.7G
+   • 64位操作系统中 新生代空间是64MB，老生代是1400MB
+   • 32位操作系统中 新生代空间为32MB，老生代是700MB
+   • 最新版node(V14)的内存是2GB
+为什么内存空间只分配了最多1.4G呢，相较于其他语言来说，这个内存空间并不是很大，这就要从JS语言的特性来说了。
+最早的时候，JS是为了浏览器渲染使用，并且是异步单线程的，它没有考虑一些特殊情况比如node读写大文件，内存空间可能会超出1.4G。它认为JS是不需要持久化的，运行完就可以销毁，所以内存占用并不是很多。由于JS是异步单线程的，所以运行代码的时候，是不能运行垃圾回收的；运行垃圾回收的时候，也是不能运行JS代码的。如果垃圾越多，那么我们等待的时间也是越长的，你能接受这个等待的时间吗？所以，就没有必要设计那么大的内存空间。
+如果我们需要使用大内存呢？有办法改变吗？
+我们可以通过node设置max-old-space-size和max-new-space-size来更改新老生代的内存空间  
+7. 新生代算法scavenge
+   新生代对象主要通过scavenge算法，采用复制的方式实现的垃圾回收算法。它将堆内存一分为二，一个处于正在使用中，另一个处于闲置状态。正在使用中的semispace空间称为Form空间，处于闲置状态的空间称为To空间。当我们分配对象的时候，先是在Form空间中进行分配。当开始垃圾回收的时候，会检查From空间中的存活对象，这些存活对象将会被复制到To空间，而非存活对象将会被释放。完成复制后，Form空间和To空间的角色将会发生对换。
+   缺点是空间利用率低，只能使用堆内存中的一半；
+   优点是时间效率高，因为只复制存活的对象，新生代中的对象存活时间短，适合这个算法。
+8. 什么是晋升，晋升条件？
+   在scavenge过程中，From空间中的存活对象将会复制到To空间中去，然后将Form空间和To空间进行翻转。、From空间中的存活对象在复制到To空间之前需要进行检查。在满足一定条件下，需要将存活周期长的对象移动到老生代中，也就是完成对象晋升。
+   对象是否经历过Scavenge
+   To空间的内存占用比超过限制（25%）
+8. 老生代算法 Mark-Sweep  
+   Mark-Sweep（标记清除算法），它分为标记和清除两个阶段。在标记阶段遍历堆中的所有对象，并标记活着的对象，在接下来的清除阶段中，只清除没有被标记的对象。老生代中存活对象多，存活时间长所以采用Mark-Sweep算法对非存活对象进行清除。
+   在标记前，垃圾回收器会将所有的数据设置为白色，然后回收器从根节点开始遍历，把所有能访问到的数据标记为黑色，遍历结束后，标记为黑色的就是存活的活动对象，而白色就是待清理的非存活对象。
+8. Mark-compact算法
+   在进行一次标记清除回收后，内存空间会出现不连续的状态，对后续的内存分配造成问题。为了解决内存碎片问题，Mark-compact（标记整理）算法被提出来，标记整理算法是在Mark-Sweep（标记清除）算法进行后对存活的对象进行整理，将存活对象往一端移动，移动完成后，直接清理掉边界外的内存。
+9. 什么是全停顿？
+   在垃圾回收的过程中为了保证回收的正确性，需要将JavaScript应用逻辑暂停下来，等到垃圾回收执行完成后再恢复JavaScript应用逻辑，这种行为被称为全停顿。
+   在新生代和老生代的垃圾回收过程中，V8采用并行回收的机制，也就是说在主线程之外开启多个辅助线程帮助垃圾回收，达到减少回收时间的目的。于是引进了增量标记算法（Incremental Marking）。
+10. Incremental Marking（增量标记算法）
+    就是将一次完整的垃圾回收拆分为许多小的“步进”，让垃圾回收与应用逻辑交替执行   
+11. 暂停的垃圾回收过程该如何无缝衔接般的恢复呢？—— 三色标记法
+    在Mark-Sweep算法中我们知道可以把对象设置为黑色和白色进行区分，但是在Incremental Marking算法中，垃圾回收器暂停后重新启动，如何找到上次停顿的位置成了问题。为了解决这个问题，V8采用了三色标记法，每个对象都有两个标记位和一个标记工作表来实现标记，标记位的颜色分为白色、灰色、黑色。
+    白色是未标记的对象；
+    黑色是自身和成员变量都被标记的对象；
+    灰色是自身被标记，但是所属的成员变量未被标记。
+    一开始所有对象都是白色，从根节点开始遍历，先把遇到的这组对象标记为灰色并推入标记工作表中；
+    当回收器从标记工作表中弹出对象并访问它的引用对象时，将其自身由灰色转变为黑色，并将下一个引用对象转为灰色；
+    直到遍历到了尽头，剩下的白色对象就是需要被清理的目标。如果中途遇到了暂停，我们可以通过寻找灰色的对象节点来恢复执行。
+12. 写屏障
+    所以V8引入了写屏障的机制，每当引用发生变化时，如果有黑色对象指向白色对象，该机制会强制将白色对象改成灰色，从而保证下一次增量标记的正确性。
+    
 ### -----------------path模块----------------
 #### 如何获取项目的根路径？
 process.cwd()
@@ -226,10 +291,63 @@ try {
 }
 
 ```
-#### Node中如何读取可读流的内容
-
 #### Node中如何读取大文件的内容
+fs.readFile在读取小文件时很方便，因为它是一次把文件全部读取到内存中；
+假如我们要读取一个3G大小的电影文件，那么内存不就爆了么？node提供了流对象来读取大文件。
+流的方式其实就是把所有的数据分成一个个的小数据块（chunk），一次读取一个chunk，分很多次就能读取特别大的文件，写入也是同理。
+这种读取方式就像水龙头里的水流一样，一点一点的流出来，而不是一下子涌出来，所以称为流。
+```
+'use strict'
+let fs = require("fs");
 
+fs.readFile("MobyLinuxVM.vhdx", (err, data)=>{
+    console.log(err);
+});
+let reader = fs.createReadStream("MobyLinuxVM.vhdx");
+let writer = fs.createWriteStream("MobyLinuxVM-copy.vhdx");
+let len = 0;
+reader.on('data', (chunk)=>{
+    //chunk是每次读取到的一小块字节
+    console.log(chunk.length);
+    len += chunk.length;
+    writer.write(chunk, ()=>{
+        console.log("写入了一个chunk");
+    })
+});
+reader.on('end', ()=>{
+   console.log("读取完毕,总大小："+len);
+});
+
+reader.pipe(writer);
+```
+如果chunk单次就超过2G可以尝试分片
+```
+const info = await fs.promises.stat(filepath)
+const size = info.size
+const SIZE = 128 * 1024 * 1024
+let sizeLen = Math.floor(size/SIZE)
+ let total = sizeLen +1 ;
+ for(let i=0;i<=sizeLen;i++){
+   if(sizeLen ===i){
+     console.log(i*SIZE,size,total,123)
+     readStremfunc(i*SIZE,size,total)
+   }else{
+     console.log(i*SIZE,(i+1)*SIZE,total,456)
+     readStremfunc(i*SIZE,(i+1)*SIZE-1,total)
+   }
+ }
+const readStremfunc = () => {
+    const readStream =  fs.createReadStream(filepath,{start:start,end:end})
+    readStream.setEncoding('binary')
+    let data = ''
+    readStream.on('data', chunk => {
+        data = data + chunk
+    })
+    readStream.end('data', () => {
+      ...
+    })
+}
+```
 ### -----------------require模块----------------
 #### node中module.exports与exports有什么区别
 CommonJS规范最终返回module.exports,
@@ -335,6 +453,8 @@ console.log(str);
    Writable为可被写流,在作为输出源时使用；
    Duplex为可读写流,它作为输出源接受被写入，同时又作为输入源被后面的流读出．
    Transform机制和Duplex一样，都是双向流，区别是Transfrom只需要实现一个函数_transfrom(chunk, encoding, callback);而Duplex需要分别实现_read(size)函数和_write(chunk, encoding, callback)函数.
+#### Node中如何读取可读流的内容
+on('data')，on('readable')，pipe()
 
 ### -----------------EventEmitter模块----------------
 #### 请解释下你对EventEmitter的理解
@@ -435,7 +555,6 @@ process.on('message', function(msg){
 	process.send("我不要关怀，我要银民币！");
 });
 ```
-#### 说说你对线程模型的理解
 #### Node中cluster的原理是什么
 Cluster模块是Node.js的一个内置模块，它用于创建多进程集群，以充分利用多核CPU的计算资源，提高应用程序的性能和稳定性。
 通过Cluster模块，Node.js应用可以创建多个子进程，每个子进程可以独立处理请求，共同组成一个进程集群，从而实现负载均衡和并发处理。
@@ -501,8 +620,14 @@ https.createServer(options, (req, res) => {
 
 ```
 #### 使用nodejs可以获取客户端连接的真实IP吗？为什么？如何获取？
+function getClientIP(req) {
+   return req.headers['x-forwarded-for'] || // 判断是否有反向代理 IP
+   req.connection.remoteAddress || // 判断 connection 的远程 IP
+   req.socket.remoteAddress || // 判断后端的 socket 的 IP
+   req.connection.socket.remoteAddress;
+};
 #### Node中服务端框架如何解析http的请求体body
-#### Node中dns.resolve及dns.lookup有什么区别
+body-parser中间件
 
 ### -----------------node其他----------------
 #### 在开发nodejs的时候如何做到多版本共存？
@@ -643,10 +768,166 @@ libuv是一个高性能的，事件驱动的I/O库，并且提供了跨平台（
 libuv强制使用异步的，事件驱动的编程风格。它的核心工作是提供一个event-loop，还有基于I/O和其它事件通知的回调函数。
 nodejs使用libuv监听各种异步事件
 #### Node端如何向服务器上传文件
+```
+let storage = multer.diskStorage({
+    //文件保存路径
+    destination: function (req, file, cb) {
+        cb(null, 'public/uploads/')  //注意路径必须存在
+    },
+    //修改文件名称
+    filename: function (req, file, cb) {
+        let fileFormat = (file.originalname).split(".");
+        cb(null,Date.now() + "." + fileFormat[fileFormat.length - 1]);
+    }
+})
+const upload = multer({ storage })
+// 上传图片（form-data 形式，支持多文件上传）loginCheck
+router.post('/upload-img', upload.single('file'), async ctx => {
+    console.log(ctx.req.file)
+    console.log('url', ctx.req.file.destination + ctx.req.file.filename)
+    ctx.body = new SuccessRes({url: ctx.req.file.destination + ctx.req.file.filename})
+})
+```
 #### Node中如何发送请求
+1. HTTP/HTTPS模块
+```
+const https = require('https');
+
+https.get('https://xxx', (response) => {
+  let todo = '';
+
+  // called when a data chunk is received.
+  response.on('data', (chunk) => {
+    todo += chunk;
+  });
+
+  // called when the complete response is received.
+  response.on('end', () => {
+    console.log(JSON.parse(todo).title);
+  });
+
+}).on("error", (error) => {
+  console.log("Error: " + error.message);
+});
+```
+2. Request
+```
+npm install request --save
+const request = require('request');
+request('https://xxx', { json: true }, (err, res, body) => {
+  if (err) { 
+      return console.log(err); 
+  }
+  console.log(body.id);
+  console.log(body.title);
+});
+```
+3. Needle
+```
+npm install needle --save
+const needle = require('needle');
+
+needle.get('https://xxx', {json: true}, (err, res) => {
+   if (err) {
+      return console.log(err);
+   }
+   let todo = res.body;
+   console.log(todo.id);
+   console.log(todo.title);
+});
+```
+4. Axios
+```
+npm install axios --save
+const axios = require('axios');
+
+axios.get('https://xxx')
+  .then(res => {
+    console.log(res.data.id);
+    console.log(res.data.title);
+  })
+  .catch(err => {
+    console.log(err);
+  });
+```
+5. SuperAgent
+```
+npm install superagent --save
+const superagent = require('superagent');
+
+superagent.get('https://xxx')
+.end((err, res) => {
+  if (err) { 
+      return console.log(err); 
+  }
+  console.log(res.body.id);
+  console.log(res.body.title);
+});
+```
+6. Got
+```
+npm install got --save
+const got = require('got');
+
+got('https://xxx', { json: true })
+    .then(res => {
+      console.log(res.body.id);
+      console.log(res.body.title);
+    }).catch(err => {
+      console.log(err.response.body);
+    });
+```
+7. Node-fetch
+```
+npm install node-fetch --save
+const fetch = require('node-fetch');
+
+fetch('https://xxx')
+    .then(res => res.json()) // expecting a json response
+    .then(json => {
+        console.log(json.id);
+        console.log(json.title);
+    })
+    .catch(err => {
+        console.log(err);
+    });
+```
 #### node中如何监听异步资源async_hooks的生命周期
+async_hooks模块是Node.js的核心模块，它提供了一组API，允许我们注册钩子函数来监听异步资源的生命周期。这些钩子函数会在异步资源的不同生命周期阶段被调用，从而让我们了解异步操作的状态。
+```
+const async_hooks = require('async_hooks');
+// 创建一个钩子
+const hook = async_hooks.createHook({
+  init(asyncId, type, triggerAsyncId, resource) {
+    console.log('Init', asyncId, type, triggerAsyncId, resource);
+  },
+  before(asyncId) {
+    console.log('Before', asyncId);
+  },
+  after(asyncId) {
+    console.log('After', asyncId);
+  },
+  destroy(asyncId) {
+    console.log('Destroy', asyncId);
+  }
+});
+// 启用钩子
+hook.enable();
+// 创建一个异步操作
+setTimeout(() => {
+  console.log('Timeout callback');
+}, 1000);
+```
+应用场景
+async_hooks模块在多个场景下都非常有用：
+性能优化：通过分析异步资源的生命周期，我们可以找到性能瓶颈，从而优化代码。
+错误追踪：当异步操作出现错误时，我们可以通过async_hooks模块快速定位问题所在。
+调试和日志记录：通过监听异步资源的生命周期，我们可以更详细地了解代码的执行过程，为调试和日志记录提供便利。
 #### 如何获取你们Node项目的cpu profile快照
-#### 如何实现一个timeout的中间件
+node --prof
+node --prof-process
+node --inspect app.js
+performance面板
 #### 如何检测并避免循环依赖
 ```
 function isCircularReference(value) {
@@ -676,17 +957,67 @@ function isCircularReference(value) {
 }
 ```
 #### 有没有使用过Node的inspect这个核心模块
+util.inspect是Node.js中的一个模块，它提供了将任何JavaScript对象转换为字符串的功能。它通常用于调试和日志记录。
+当您在Node.js中使用util.inspect函数时，它会返回一个表示传递对象的字符串。您可以通过传递不同的选项来自定义字符串的格式。例如，您可以指定缩进、深度、颜色等选项。
+```
+const util=require('util');
+
+function Person(){
+    this.name='wulitian';
+    this.toString=function(){
+        return this.name;
+    };
+}
+const obj=new Person();
+console.log(util.inspect(obj));
+console.log(util.inspect(obj,true));
+```
 #### 在Node项目中你有使用过哪些常用的中间件？
+中间件（Middleware）是介于应用系统和系统软件之间的一类软件，它使用系统软件所提供的基础服务（功能），衔接网络上应用系统的各个部分或不同的应用，能够达到资源共享、功能共享的目的
+例如在express、koa等web框架中，中间件的本质为一个回调函数，参数包含请求对象、响应对象和执行下一个中间件的函数
+在这些中间件函数中，我们可以执行业务逻辑代码，修改请求和响应对象、返回响应数据等操作
 #### I/O多路复用轮询技术select和epoll的区别是什么？
 #### 你是如何选择Node.js的版本的？
+Node的版本规则
+每个版本的ChangeLog，即该版本做了哪些变动
+环境约束
+项目约束
 #### Node项目中，你是怎么记录日志的？
+1. 记录有意义和目的
+   不要添加不必要的日志，因为多余的日志信息会变成噪音。另外如果应用程序写日志的频率过高，将直接影响应用程序的性能。
+2. 进行分割，避免造成大日志文件
+   如果对日志不进行分割，将会导致日志文件非常大，在分析时会很麻烦。同时对于文件日志来说，文件过大也将影响性能。可以为单独的日志等级使用单独的日志文件，或者可以尝试使用大多数日志框架中可用的滚动日志文件特性。根据时间或大小对日志文件进行分割压缩。
+3. 不应该有副作用
+   这里说的副作用是指日志记录不能影响应用程序本身，不能因为日志记录导致严重的程序问题。
+4. 不能记录任何敏感信息   
+   在登录时，必须确保没有记录任何敏感信息，如用户登录名和密码、身份证、手机号码、银行卡号等。
+5. Winston ：灵活的通用日志库
+   Morgan ： HTTP请求记录器中间件
+   Pino：超快（非常低的开销），纯原生 JSON 记录器
+   Loglevel：JavaScript最小的轻量级简单日志记录
+   log4js ：没有运行时依赖的日志框架   
 #### Node中如何查看函数异步调用栈
+async_hooks
 #### Node如何热部署（热更新）
-#### 如何在生产环境部署一个Node应用
+1. 代码没法实时生效的原因
+   当我们通过require('xx/xx.js')去加载一个功能模块的时候，node会把require('xx/xx.js')得到的结果缓存在require.cache('xx/xx.js')中
+   当我们多次调用require('xx/xx.js')，node就不再重新加载，而是直接从require.cache('xx/xx.js')读取缓存
+   所以当小伙伴在服务器上修改xx/xx.js这个路径下的文件时，node只会去读取缓存，不会去加载小伙伴的最新代码
+2. 原理
+   扫描项目中的所有文件，将所有文件添加监听变化
+   当文件变动就会算出缓存文件的地址并清空该缓存
+   加载修改后的文件并检测当前文件的语法错误校验通过后重新加载这个文件并添加到缓存中
+3. 常用的热部署工具
+   Nodemon
 #### Node适用于哪些场景开发？
 Node.js适合做一些高并发的，I/O密集型的应用。
 当应用程序需要处理大量并发的I/O，而在向客户端发出响应之前，应用程序内部并不需要进行非常复杂的处理的时候，Node.js非常适合。Node.js也非常适合与web socket配合，开发长连接的实时交互应用程序。
 #### 说说你对Node模块的理解
+模块化：Node模块采用了模块化的开发方式，将代码分割为小的模块，每个模块负责实现特定的功能。这种模块化的开发方式有助于代码的复用和维护，提高了开发效率。
+文件级别作用域：Node模块在加载时会创建一个独立的作用域，模块内部的变量和函数在模块外部是不可见的。这种文件级别的作用域可以避免全局命名冲突，提供了更好的封装性。
+CommonJS规范：Node模块遵循CommonJS规范，该规范定义了模块的导入和导出方式。通过使用require函数导入其他模块，可以在当前模块中使用导入模块的功能。使用module.exports或exports导出模块，使其他模块可以引用当前模块。
+内置模块和第三方模块：Node.js提供了一些内置模块，如fs、http等，可以直接使用。同时，社区也有丰富的第三方模块，可以通过npm安装并引入使用。这些模块提供了很多常用的功能和工具，方便开发者快速构建应用。
+#### 如何在生产环境部署一个Node应用
 
 ### -----------------node框架----------------
 #### 说说koa洋葱模型有什么优点？它是如何实现洋葱模型的？
@@ -730,12 +1061,93 @@ middlewareB after
 middlewareA after
 ```
 #### koa是如何解决跨域的？
-#### 你自己有写过koa的中间件吗？
+1. 直接在每个请求中添加 header 信息
+```
+router.post('/', ctx => {
+  ctx.set('Access-Control-Allow-Origin', 'http://localhost:8080');
+  ctx.set('Access-Control-Allow-Credentials', 'true');
+  ctx.body = '跨域请求';
+});
+```
+2. 为所有路由添加 header 信息
+```
+router.all('*', async (ctx, next) => {
+  ctx.set("Access-Control-Allow-Origin", "*")
+  ctx.set("Access-Control-Allow-Headers", "X-Requested-With")
+  ctx.set("Access-Control-Allow-Methods","PUT,POST,GET,DELETE,OPTIONS")
+  ctx.set("X-Powered-By",' 3.2.1')
+  ctx.set("Content-Type", "application/json;charset=utf-8")
+  next()
+})
+```
+3. 抽离为中间件
+```
+/**
+ * 关键点：
+ * 1、如果需要支持 cookies,
+ *    Access-Control-Allow-Origin 不能设置为 *,
+ *    并且 Access-Control-Allow-Credentials 需要设置为 true
+ *    (注意前端请求需要设置 withCredentials = true)
+ * 2、当 method = OPTIONS 时, 属于预检(复杂请求), 当为预检时, 可以直接返回空响应体, 对应的 http 状态码为 204
+ * 3、通过 Access-Control-Max-Age 可以设置预检结果的缓存, 单位(秒)
+ * 4、通过 Access-Control-Allow-Headers 设置需要支持的跨域请求头
+ * 5、通过 Access-Control-Allow-Methods 设置需要支持的跨域请求方法
+ */
+module.exports = async (ctx, next) => {
+    ctx.set('Access-Control-Allow-Origin', '*'); //允许来自所有域名请求(不携带cookie请求可以用*，如果有携带cookie请求必须指定域名)
+    // ctx.set("Access-Control-Allow-Origin", "http://localhost:8080"); // 只允许指定域名http://localhost:8080的请求
+    ctx.set('Access-Control-Allow-Methods', 'OPTIONS, GET, PUT, POST, DELETE'); // 设置所允许的HTTP请求方法
+    ctx.set('Access-Control-Allow-Headers', 'x-requested-with, accept, origin, content-type'); // 字段是必需的。它也是一个逗号分隔的字符串，表明服务器支持的所有头信息字段.
+    // 服务器收到请求以后，检查了Origin、Access-Control-Request-Method和Access-Control-Request-Headers字段以后，确认允许跨源请求，就可以做出回应。
+    ctx.set('Content-Type', 'application/json;charset=utf-8'); // Content-Type表示具体请求中的媒体类型信息
+    ctx.set('Access-Control-Allow-Credentials', true); // 该字段可选。它的值是一个布尔值，表示是否允许发送Cookie。默认情况下，Cookie不包括在CORS请求之中。
+    // 当设置成允许请求携带cookie时，需要保证"Access-Control-Allow-Origin"是服务器有的域名，而不能是"*";
+    ctx.set('Access-Control-Max-Age', 300); // 该字段可选，用来指定本次预检请求的有效期，单位为秒。
+    // 当请求方法是PUT或DELETE等特殊方法或者Content-Type字段的类型是application/json时，服务器会提前发送一次请求进行验证
+    // 下面的的设置只本次验证的有效时间，即在该时间段内服务端可以不用进行验证
+    ctx.set('Access-Control-Expose-Headers', 'myData'); // 需要获取其他字段时，使用Access-Control-Expose-Headers，
+    // getResponseHeader('myData')可以返回我们所需的值
+    /*
+    CORS请求时，XMLHttpRequest对象的getResponseHeader()方法只能拿到6个基本字段：
+        Cache-Control、
+        Content-Language、
+        Content-Type、
+        Expires、
+        Last-Modified、
+        Pragma。
+    */
+    /* 解决OPTIONS请求 */
+    if (ctx.method == 'OPTIONS') {
+        ctx.body = '';
+        ctx.status = 204;
+    } else {
+        await next();
+    }
+};
+```
+koa2-cors
+```
+app.use(
+  cors({
+    origin: function(ctx) { //设置允许来自指定域名请求
+      return 'http://localhost:8080'; //只允许http://localhost:8080这个域名的请求
+    },
+    maxAge: 5, //指定本次预检请求的有效期，单位为秒。
+    credentials: true, //是否允许发送Cookie
+    allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], //设置所允许的HTTP请求方法
+    allowHeaders: ['Content-Type', 'Authorization', 'Accept'], //设置服务器支持的所有头信息字段
+    exposeHeaders: ['WWW-Authenticate', 'Server-Authorization'] //设置获取其他自定义字段
+  })
+);
+```
 #### koa中如果一个中间件没有调用await next()，结果会怎样？
+后面的中间件不会执行
 #### koa中next()的原理是什么？
+中间件之间通过next 函数联系，当一个中间件调用 next() 后，会将控制权交给下一个中间件，直到下一个中间件不再执行 next() 时沿路返回，依次将控制权交给上一个中间件
 #### koa2相比koa1有什么改进呢？
+koa1的中间件使用generator函数，使用yield next进入下一个中间件，koa2中间件使用async函数，使用await next()进入下一个中间件
 #### 请说说koa的app.use()执行流程
-#### 你知道egg.js和think.js吗？说说它们的区别是什么？
+简单说其实就是把函数存放到this.middleware数组里，然后返回实例对象this。
 #### 你有使用过express和koa吗？它俩有什么区别？
 Koa 和 Express 是两个流行的 Node.js Web 框架，它们有一些共同的核心设计思想和原理，同时也有一些区别。以下是它们的核心设计思想和原理的概述：
 Express 的核心设计思想和原理：
@@ -747,7 +1159,6 @@ Koa 的核心设计思想和原理：
 上下文对象：Koa 引入了上下文对象（context），它是一个封装了请求和响应的对象。上下文对象提供了许多方便的方法和属性，使开发者能够更方便地访问和操作请求和响应的各个方面。上下文对象还提供了一些辅助方法，例如 throw 和 assert，用于处理错误和断言。
 中间件洋葱模型：Koa 的中间件执行顺序遵循洋葱模型。这意味着每个中间件函数可以在处理请求之前和之后执行一些操作，从而形成一个环绕式的执行流程。这种洋葱模型使得中间件可以在请求处理过程中执行前置操作和后置操作，例如身份验证、日志记录等。
 总的来说，Express 和 Koa 都是基于中间件架构的 Node.js Web 框架，它们的核心设计思想和原理都围绕着中间件的概念展开。Express 更加简单和直接，注重灵活性和易用性，而 Koa 则更加注重异步编程和中间件流程控制，提供了更强大的异步处理能力。开发者可以根据自己的需求和偏好选择适合的框架来构建 Node.js Web 应用程序。
-#### express中间件的原理是什么
 #### express项目的目录大致是什么结构的
 首先，执行安装 express的指令：npm install express-generator-g。
 然后，通过 express指令创建项目：express icketang。
@@ -776,6 +1187,7 @@ Koa 的核心设计思想和原理：
 – res.send ( )，返回多种形式数据。
 – res.sendFile  ( )，返回文件。
 – res.sendStatus( )，返回状态。
+
 ### -----------------node架构----------------
 #### 如何实现jwt鉴权机制？说说你的思路
 Token登录模式是一种在Web应用中进行身份验证和授权的常见方式。它基于令牌（Token）的概念，通过在客户端和服务器之间传递令牌来验证用户的身份和授权访问。
@@ -794,13 +1206,17 @@ Token登录模式的主要优势包括：
 安全性：令牌可以使用加密算法进行签名和验证，确保令牌的完整性和安全性。此外，令牌还可以通过设置短期过期时间和使用刷新令牌来增加安全性。
 可扩展性：Token登录模式可以与其他身份验证和授权机制结合使用，例如多因素身份验证、单点登录（SSO）等。
 总的来说，Token登录模式通过使用令牌来验证用户身份和授权访问，提供了一种安全、可扩展和无状态的身份验证机制。它已经成为现代Web应用中常见的身份验证方式之一。
-#### 请简述重新登录refresh token的原理
-#### 如何使用Consul进行服务注册与服务发现？
-#### 使用Consul解决了哪些问题？
 #### Consul的四大核心特性是什么？
-#### 你了解Consul吗？说说它的运用场景有哪些？
+服务发现：可以方便的实现服务注册，通过DNS或者HTTP应用程序可以很容易的找到他所依赖的服务.
+Key/Value存储：使用Key/Value进行数据存储。
+多数据中心：Consul支持开箱即用的多数据中心。这意味着用户不需要担心建立额外的抽象层让业务扩展到多个区域
+健康检查：可以对指定服务进行健康检查例如，Response Status是否为200，避免将流量转发到不健康的服务上。
 #### pm2的cluster和fork两种模块有什么区别？如何选择？
+如何选择模式？ 选择Cluster模式还是Fork模式取决于你的应用程序的特性和需求。 如果你的应用程序需要处理大量的并发请求，并且服务器具有多个CPU核心，则应该选择Cluster模式。 
+如果你的应用程序只需要处理少量的并发请求，并且服务器只有一个CPU核心，则应该选择Fork模式。
 #### 你了解什么是集群吗？
+集群是一组相互独立的、通过高速网络互联的计算机，它们构成了一个组回，并以单一系统的模答式加以管理。 
+一个客户与集群相互作用时，集群像是一个独立的服务器。 集群配置是用于提高可用性和可缩放性
 #### 你知道什么是ORM吗？
 ORM框架是通过对SQL语句进行封装，并将数据库的数据表和用户代码里的模型对象进行自动映射。
 这样开发者使用时只需要调用模型对象的方法就能实现对数据库的增删改查，不用手写太多的SQL了。
@@ -811,10 +1227,37 @@ TypeORM：基于TS，Nest框架首选TypeORM。
 BFF（Backend For Frontend）,说白了就是中间层，由前端同学开发的后端项目。
 最常见的BFF项目像SSR和GraphQL。SSR用来解决SEO问题，GraphQL用来聚合数据，解决API查询的问题。
 #### 你知道什么是REPL吗？
+交互式解释器如node环境的命令行窗口，windows系统的终端
 #### Mongodb如何批量更新文档？
-#### 你对Mongodb有了解吗？
-#### 如何构建一个简单的生产者与消费者模型？
-#### 说说 MySQL和 MongoDB的区别。
+```
+// 字段拼接指定字符
+db.collName.find().forEach(
+  function(e){
+    db.collName.update({'_id': e._id}, {'fieldName' : e.fieldName+ 'xxx'}}, false, true)
+  }
+)
+// 字段替换指定字符
+db.collName.find().forEach(
+  function(e){
+    db.collName.update({'_id': e._id}, {'fieldName' : e.fieldName.replace('xxx', '需要替换成的指定字符')}}, false, true)
+  }
+)
+// update() 方法用于更新已存在的文档
+// query : update的查询条件，类似sql update查询内where后面的。
+// update : update的对象和一些更新的操作符（如$,$inc…）等，也可以理解为mysql 中update查询内set后面的
+// upsert : 可选，这个参数的意思是，如果不存在update的记录，是否插入objNew,true为插入，默认是false，不插入。
+// multi : 可选，mongodb 默认是false,只更新找到的第一条记录，如果这个参数为true,就把按条件查出来多条记录全部更新。
+// writeConcern :可选，抛出异常的级别。
+db.collection.update(
+   <query>,
+   <update>,
+   {
+     upsert: <boolean>,
+     multi: <boolean>,
+     writeConcern: <document>
+   }
+)
+```
 （1） MySQL是传统的关系型数据库， MongoDB则是非关系型数据库。
 （2） MongoDB以BSON结构进行存储，在存储海量数据方面有着很明显的优势。
 （3）与传统关系型数据库相比， NoSQL有着非常显著的性能和扩展性优势。
@@ -828,8 +1271,97 @@ Redis的进阶功能：Redis有各种数据结构，除了缓存之外，还能�
 Redis持久化：Redis可以将缓存持久化到本地，持久化策略包括RDB和AOF。
 集群：如果单机Redis不够用的话，可以考虑搭建Redis集群，Redis集群有主从和哨兵两种模式。
 Redis对于后端来说，是一个专门的话题，我将会在我的后端面试手册中详细讲解，感兴趣的小伙伴可以持续关注。
-#### 如何安装、启动一个RabbitMQ服务？
-#### MQ的空间与时间解耦是什么？
 #### RabbitMQ的应用场景有哪些？
-#### 常用的主流消息中间件都有哪些？
+一、接收模式
+1. 单发送单接收
+2. 单发送多接收
+3. Publish/Subscribe(发布、订阅模式)
+4. 路由 Routing (按路线发送接收)
+5. 主题交换机Topics (按topic发送接收)
+6. 远程过程调用 PRC
+7. 发布者确认
+二、四种交换机介绍
+1. 直连交换机（Direct exchange）： 具有路由功能的交换机，绑定到此交换机的时候需要指定一个routing_key，交换机发送消息的时候需要routing_key，会将消息发送道对应的队列
+2. 扇形交换机（Fanout exchange）： 广播消息到所有队列，没有任何处理，速度最快
+3. 主题交换机（Topic exchange）： 在直连交换机基础上增加模式匹配，也就是对routing_key进行模式匹配，*代表一个单词，#代表多个单词
+4. 首部交换机（Headers exchange）： 忽略routing_key，使用Headers信息（一个Hash的数据结构）进行匹配，优势在于可以有更多更灵活的匹配规则
+三、Rabbitmq如何保证消息不丢失
+生产者提交给消息服务器时，使用确认机制
+消息服务器对应的队列、交换机等都持久化，保证数据的不丢失
+消费者采用消息确认机制，保证数据的不丢失
 #### 你有写过定时任务吗？是用第三方模块吗？
+一、安装
+npm install node-schedule 或 yarn add node-schedule
+二、基础用法
+使用 schedule.scheduleJob() 即可创建一个定时任务，一个简单的上手示例：
+```
+const schedule = require('node-schedule');
+// 当前时间的秒值为 10 时执行任务，如：2018-7-8 13:25:10
+let job = schedule.scheduleJob('10 * * * * *', () => {
+   console.log(new Date());
+});
+```
+如何运行示例？（首先确保安装了 Node.js）
+1、新建一个 *.js 文件，如：test.js，粘贴示例代码；
+2、终端（或命令行）cd 到当前文件的所在目录；
+3、终端执行 node test.js 即可执行代码；
+4、console 会在终端界面直接输出内容；
+5、Ctrl + C 可退出执行；
+时间数值按下表表示
+*  *  *  *  *  *
+┬  ┬  ┬  ┬  ┬  ┬
+│  │  │  │  │  |
+│  │  │  │  │  └ 星期几，取值：0 - 7，其中 0 和 7 都表示是周日
+│  │  │  │  └─── 月份，取值：1 - 12
+│  │  │  └────── 日期，取值：1 - 31
+│  │  └───────── 时，取值：0 - 23
+│  └──────────── 分，取值：0 - 59
+└─────────────── 秒，取值：0 - 59（可选）
+也可以指定一个具体的时间，如：
+```
+const schedule = require('node-schedule');
+// 定义一个未来的时间
+let date = new Date(2016, 6, 13, 15, 50, 0);
+// 定义一个任务
+let job = schedule.scheduleJob(date, () => {
+   console.log(new Date());
+});
+```
+三、进阶用法
+除了基础的用法，我们还可以使用一些更为灵活的方法来实现定时任务。
+3.1、隔一段时间执行一次
+```
+const schedule = require('node-schedule');
+// 定义规则
+let rule = new schedule.RecurrenceRule();
+rule.second = [0, 10, 20, 30, 40, 50]; // 每隔 10 秒执行一次
+// 启动任务
+let job = schedule.scheduleJob(rule, () => {
+   console.log(new Date());
+});
+```
+rule 支持设置的值有 second、minute、hour、date、dayOfWeek、month、year 等。一些厂家的用法，如：
+每秒执行
+rule.second = [0,1,2,3......59];
+每分钟 0 秒执行
+rule.second = 0;
+每小时 30 分执行
+rule.minute = 30;
+rule.second = 0;
+每天 0 点执行
+rule.hour =0;
+rule.minute =0;
+rule.second =0;
+每月 1 号的 10 点执行
+rule.date = 1;
+rule.hour = 10;
+rule.minute = 0;
+rule.second = 0;
+每周一、周三、周五的 0 点和 12 点执行
+rule.dayOfWeek = [1,3,5];
+rule.hour = [0,12];
+rule.minute = 0;
+rule.second = 0;
+四、取消任务
+可以使用 cancel() 终止一个运行中的任务。
+job.cancel();
