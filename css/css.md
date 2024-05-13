@@ -1,7 +1,6 @@
-## css面试题
+## css
 
 ### -------css取值单位------
-
 #### css中px,em,rem
 1. ie8及以下不支持em，与rem
 2. rem 相对于根html的字体大小，找到设计图宽度，与当前字体的比例动态设置html的font-size,如果font-size:10px,1rem=10px

@@ -1,4 +1,4 @@
-## webpack面试题
+## webpack
 
 ### -------webpack理解与介绍-------
 
@@ -485,6 +485,7 @@ Vite 缺点： 生态：生态不如webpack，wepback在于loader和plugin非常
 统一、高效的开发环境
 统一的构建流程和产出标准
 集成公司的构建规范(提测、上线等)
+
 ### -------webpack综合-------
 #### 说说webpack的热更新是如何做到的，原理是什么
 1. webpack compiler 将js源代码编译成bundle.js
