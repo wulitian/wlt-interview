@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>wulitian</title>
+</head>
+<body>
+<script>
+    (()=>{
+        function ban(){
+            if(window.outerHeight-window.innerHeight>200||window.outerWidth-window.innerWidth>200){
+                document.body.innerHTML = "检测到非法调试,请关闭后刷新重试!";
+            }
+            setInterval(()=>{
+                // Function('debugger')() 复杂化这个写法
+                (function () {
+                    return false;
+                }['constructor']('debugger')['call']());
+            },50)
+        }
+        try {
+            ban();
+        } catch (err) { }
+    })()
+
+</script>
+</body>
+</html>

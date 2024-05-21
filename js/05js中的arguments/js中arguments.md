@@ -8,4 +8,4 @@
 
 3. arguments.caller 指向调用当前函数的函数
 
-4. arguments.length 传递当前函数数量
+4. arguments.length 传递当前函数参数的数量

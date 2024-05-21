@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>wulitian</title>
+</head>
+<body>
+<script>
+    // 这种方法会临时开一个js在运行的时候，取消浏览器中的断点调试也不行
+    (() => {
+        function ban() {
+            setInterval(() => {
+                Function('debugger')();
+            }, 50);
+        }
+        try {
+            ban();
+        } catch (err) { }
+    })();
+
+</script>
+</body>
+</html>

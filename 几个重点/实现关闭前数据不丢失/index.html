@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>wulitian</title>
+</head>
+<body>
+
+<script>
+    window.onbeforeunload = e => {
+      e = e || window.event
+      // 兼容IE8和Firefox 4之前的版本
+      if (e) {
+        e.returnValue = '关闭提示'
+      }
+      console.log(1111)
+      // Chrome, Safari, Firefox 4+, Opera 12+ , IE 9+
+      return '关闭提示'
+    }
+</script>
+</body>
+</html>

@@ -42,7 +42,7 @@ SameSite Cookie 允许服务器要求某个 Cookie 在跨站请求时不会被�
 
 session是一种服务端机制，服务端使用一种散列表结构来保存信息，当程序需要为某一个客户端创建一个session时
 服务器首先检查这个客户端的请求里是否已包含了一个 Session ID，如果包含直接使用，不包含创建一个session,
-并且生成一个Session ID,Session ID不重复有不容易找出规律
+并且生成一个Session ID,Session ID不重复又不容易找出规律
 
 #### session::传输方式
 

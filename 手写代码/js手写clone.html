@@ -28,7 +28,8 @@
         }
         let res = new source.constructor();
         cache.set(source, res);
-
+        console.log(111)
+        console.log(cache.get(source))
         //处理JS内置数据结构：Array、Map、Set、Object
         if (source instanceof Array) {
             source.forEach((v) => {
@@ -44,6 +45,9 @@
             }
         } else if (Object.prototype.toString.call(source) == "[object Object]") {
             for (const key in source) {
+                console.log(222)
+                console.log(key)
+                console.log(cache)
                 res[key] = deepClone(source[key], cache);
             }
         } else {

@@ -20,6 +20,7 @@
 
 - JSON.parse(JSON.stringify(obj)) 弊端：抛弃对象的constructor,不管是什么都会变成Object，并且只能转换JSON格式对象 Function 正则，Symbol了转换不了
 
-- 递归手动赋值
-
 - Object.create(obj)
+
+- 递归手动赋值
+ 思路是：解决循环引用问题使用weakMap,解决处理JS内置数据结构：Array、Map、Set、Object，其他情况均可通过new source.constructor(source)直接来拷贝值，这些包含了正则，函数，等等

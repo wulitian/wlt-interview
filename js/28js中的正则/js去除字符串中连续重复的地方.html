@@ -21,9 +21,7 @@
     }
     // js字符串去重
     console.log(removeRepetition('345345333'))
-    let newStr = [...new Set('345345333')].join().replace(/\,/g,function (e) {
-        return '';
-    })
+    let newStr = [...new Set('345345333')].join().replace(/\,/g,'')
 
     console.log(newStr)
 

@@ -1,0 +1,6 @@
+option.title
+option.xAxis
+option.yAxis
+option.series  arr
+option.legend  arr
+option.radar   arr

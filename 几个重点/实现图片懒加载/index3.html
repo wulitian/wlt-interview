@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>wulitian</title>
+</head>
+<body>
+<div id="app"></div>
+<script>
+    let app = document.getElementById('app');
+    const obj = {
+        url: 'https://i.loli.net/2017/11/09/5a046546a2a1f.jpg',
+        width: 200,
+        height: 200
+    }
+
+    function createImg(obj) {
+        let img = null;
+        // 使用文档碎片避免频繁操作dom
+        let fragment = document.createDocumentFragment()
+        for (let i = 0; i < 100; i++) {
+            img = document.createElement('img');
+            img.width = obj.width;
+            img.height = obj.height;
+            img.className = 'img';
+            // img.src = './img/img.jpg'
+            img.setAttribute("data-src", obj.url + '?random=' + Math.random().toString().slice(4));
+            img.loading = 'lazy'
+            fragment.append(img)
+        }
+        return fragment;
+    }
+
+    function inInViewPort(el) {
+        const viewWeight = window.innerWidth || document.documentElement.offsetWidth || document.body.offsetWidth;
+        const viewHeight = window.innerHeight || document.documentElement.offsetHeight || document.body.offsetHeight;
+        const {left, top} = el.getBoundingClientRect()
+        console.log(left)
+        console.log(top)
+        if (left > 0 && top > 0 && left <= viewWeight && top <= viewHeight) {
+            el.src = el.getAttribute('data-src');
+            el.className = 'img load'
+        }
+    }
+    function scroll() {
+        const els = document.getElementsByClassName('img');
+        const len = els.length;
+        if (len > 0) {
+            for (let i = 0; i < len; i++) {
+                if(!els.item(i).className.toString().includes('load')) {
+                    inInViewPort(els.item(i))
+                }
+            }
+        }
+    }
+    let imgAll = createImg(obj)
+    app.append(imgAll)
+    const options = {
+        // 表示重叠面积占被观察者的比例，从 0 - 1 取值，
+        // 1 表示完全被包含
+        threshold: 1.0,
+        root:document.querySelector('#app') // 必须是目标元素的父级元素
+    };
+    const callback = function(entries, observer) {
+        entries.forEach(({ isIntersecting, target }) => {
+            if (isIntersecting) {
+                target.src = target.getAttribute('data-src');
+                // 修改过src属性之后，即可移除data-src属性并且取消监视
+                target.removeAttribute('data-src');
+            }
+        });
+    };
+    const observer = new IntersectionObserver(callback, options);
+    const list = document.querySelectorAll('.img');
+    list.forEach((item) => {
+        observer.observe(item);
+    });
+
+</script>
+</body>
+</html>
