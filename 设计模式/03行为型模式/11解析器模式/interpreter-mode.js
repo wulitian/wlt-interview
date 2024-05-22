@@ -1,3 +1,6 @@
+/**
+ * 解析器模式
+ */
 !(function () {
     class Context {
         constructor() {

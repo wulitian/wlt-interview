@@ -1,3 +1,6 @@
+/**
+ * 状态模式
+ */
 !(function () {
     class weakLightState {
         constructor(light) {
@@ -44,25 +47,11 @@
 
     let light = new Light()
     light.init();
+    light.getState();
 
     let light2 = new Light()
     let weakLightState1 = new weakLightState(light2);
     weakLightState1.buttonWasPressed();
     light2.getState();
 
-})()
-
-!(function () {
-    const light = {
-        'yellow': function () {
-            console.log("黄灯")
-        },
-        'red': function () {
-            console.log("红灯")
-        },
-        'green': function () {
-            console.log("绿灯")
-        }
-    }
-    light['red'] && light['red']();
 })()

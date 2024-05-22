@@ -1,3 +1,6 @@
+/**
+ * 迭代器模式
+ */
 !(function () {
     // 统一遍历接口实现
     let each = function(arr, callBack) {

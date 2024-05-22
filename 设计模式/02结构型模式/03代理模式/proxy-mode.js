@@ -1,3 +1,6 @@
+/**
+ * 代理模式
+ */
 // 保护代理司机开车
 !(function () {
     class person {

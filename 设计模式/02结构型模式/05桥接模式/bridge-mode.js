@@ -1,3 +1,6 @@
+/**
+ * 桥接模式
+ */
 !(function () {
     class Color {
         constructor(name) {

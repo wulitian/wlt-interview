@@ -1,3 +1,6 @@
+/**
+ * 组合模式
+ */
 !(function () {
     const Folder = function (name) {
         this.name = name;

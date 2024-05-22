@@ -1,3 +1,6 @@
+/**
+ * 策略模式
+ */
 !(function () {
     class Plus {
         constructor(num1, num2) {

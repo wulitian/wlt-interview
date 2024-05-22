@@ -1,3 +1,6 @@
+/**
+ * 访问者模式
+ */
 !(function () {
     // 数组方法封装
     let Visitor = (function () {

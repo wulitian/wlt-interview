@@ -1,3 +1,6 @@
+/**
+ * 备忘录模式
+ */
 !(function () {
     //备忘类
     class Memento {

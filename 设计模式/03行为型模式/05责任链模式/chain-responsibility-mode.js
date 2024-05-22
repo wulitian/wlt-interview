@@ -1,3 +1,6 @@
+/**
+ * 责任链模式
+ */
 !(function () {
 
     const User1 = function (type, pass) {
@@ -45,6 +48,7 @@
         let user3 = new Handle(User3);
         user1.setReceiver(user2);
         user2.setReceiver(user3);
+        console.log(user1)
         return user1;
     }
 
@@ -106,10 +110,10 @@
         }
 
         getChain() {
-            const ConcreteHandlerUser1 = new ConcreteHandlerUser1("a");
-            const ConcreteHandlerUser2 = new ConcreteHandlerUser2("b");
-            ConcreteHandlerUser1.setUser(ConcreteHandlerUser2)
-            return ConcreteHandlerUser1;
+            const concreteHandlerUser1 = new ConcreteHandlerUser1("a");
+            const concreteHandlerUser2 = new ConcreteHandlerUser2("b");
+            concreteHandlerUser1.setUser(concreteHandlerUser2)
+            return concreteHandlerUser1;
         }
     }
 

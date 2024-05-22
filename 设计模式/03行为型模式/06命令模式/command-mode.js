@@ -1,3 +1,6 @@
+/**
+ * 命令模式
+ */
 !(function () {
     class Command {
         constructor() {

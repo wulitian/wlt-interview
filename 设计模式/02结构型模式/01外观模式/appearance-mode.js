@@ -1,3 +1,6 @@
+/**
+ * 外观设计模式
+ */
 !(function(){
     const appearance = {
         g: function(id){
