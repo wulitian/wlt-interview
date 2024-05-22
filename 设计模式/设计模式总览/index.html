@@ -39,6 +39,9 @@
     .box-content{
       padding: 6px;
     }
+    .clear{
+      clear: both;
+    }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
 </head>
@@ -56,14 +59,37 @@
     <p>7. 接口隔离原则（Interface Segregation Principle，ISP）：保持接口的单一独立，实现接口的类中，有多余的方法时，需要将接口进行拆分。</p>
   </div>
   <div class="content">
-    <h4>几种模式介绍</h4>
-    <p>1. 创建型模式提供了创建对象的机制， 能够提升已有代码的灵活性和可复用性。</p>
-    <p>2. 结构型模式介绍如何将对象和类组装成较大的结构， 并同时保持结构的灵活和高效。</p>
-    <p>3. 行为模式负责对象间的高效沟通和职责委派。</p>
-  </div>
-  <div class="content">
     <h4>各种设计模式概览</h4>
+    <h4>创建型：提供了创建对象的机制， 能够提升已有代码的灵活性和可复用性。</h4>
     <div class="box" v-for="item in obj" :key="item.nameEn">
+      <div class="box-header">
+        <img class="box-header-img" :src="item.url" width="100px">
+        <div class="box-header-content">
+          <div class="box-header-content-title">{{item.name}}</div>
+          <div class="box-header-content-titleEn">{{item.nameEn}}</div>
+        </div>
+      </div>
+      <div class="box-content">
+        {{item.content}}
+      </div>
+    </div>
+    <div class="clear"></div>
+    <h4>结构型：如何将对象和类组装成较大的结构， 并同时保持结构的灵活和高效。</h4>
+    <div class="box" v-for="item in obj2" :key="item.nameEn">
+      <div class="box-header">
+        <img class="box-header-img" :src="item.url" width="100px">
+        <div class="box-header-content">
+          <div class="box-header-content-title">{{item.name}}</div>
+          <div class="box-header-content-titleEn">{{item.nameEn}}</div>
+        </div>
+      </div>
+      <div class="box-content">
+        {{item.content}}
+      </div>
+    </div>
+    <div class="clear"></div>
+    <h4>行为型：行为模式负责对象间的高效沟通和职责委派。</h4>
+    <div class="box" v-for="item in obj3" :key="item.nameEn">
       <div class="box-header">
         <img class="box-header-img" :src="item.url" width="100px">
         <div class="box-header-content">
@@ -118,7 +144,9 @@
           nameEn: 'Singleton',
           content: '让你能够保证一个类只有一个实例，并提供一个访问该实例的全局节点。',
           url: './img/singleton.png',
-        },
+        }
+      ],
+      obj2 : [
         {
           name: '适配器',
           nameEn: 'Adapter',
@@ -160,7 +188,9 @@
           nameEn: 'Proxy',
           content: '让你能够提供对象的替代品或其占位符，代理控制着对于原对象的访问。并允许在将请求提交给对象前后进行一些处理。',
           url: './img/proxy.png',
-        },
+        }
+      ],
+      obj3 : [
         {
           name: '责任链',
           nameEn: 'Chain of Responsibility',
