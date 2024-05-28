@@ -37,9 +37,8 @@ vue3中v-if的优先级大于v-for
 父子组件通信: props;parent / children; provide / inject ; ref ;attrs / listeners
 兄弟组件通信: eventBus ; vuex
 跨级通信: eventBus；Vuex；provide / inject 、attrs / listeners
-#### 请描述下vue的生命周期是什么？
-activated -> onActivated
-deactivated -> onDeactivated
+#### vue生命周期的作用是什么？
+它的生命周期中有多个事件钩子，让我们在合适的时机书写合适的逻辑，比如我们需要使用dom节点那就需要在mounted中写逻辑
 #### vue生命周期总共有几个阶段？
 beforeCreate -> 使用 setup()
 created -> 使用 setup()
@@ -52,8 +51,6 @@ destroyed -> onUnmounted
 errorCaptured -> onErrorCaptured
 activated -> onActivated
 deactivated -> onDeactivated
-#### vue生命周期的作用是什么？
-它的生命周期中有多个事件钩子，让我们在合适的时机书写合适的逻辑，比如我们需要使用dom节点那就需要在mounted中写逻辑
 #### DOM渲染在哪个周期中就已经完成了？
 mounted
 #### 组件进来请求接口时你是放在哪个生命周期？为什么？
@@ -1622,6 +1619,7 @@ cancelTokenSource.cancel();
 axios 的是一种异步请求，用法和 ajax 类似，安装 npm install axios --save 即可使用，请求中包括get,post,put, patch ,delete 等五种请求方式，解决跨域可以在请求头中添加 Access-Control-Allow-Origin，也可以在 index.js 文件中更改 proxyTable 配置等解决跨域问题.
 #### 如果将axios异步请求同步化处理？
 async await
+
 ### ---------vue-cli---------
 #### vue-cli提供了的哪几种脚手架模板？
 vue-cli2.x 好像有个simple和完整版的
@@ -1719,6 +1717,7 @@ vue init webpack my-project
 ```
 #### 不用vue-cli，你自己有搭建过vue的开发环境吗？流程是什么？
 #### 说下你了解的vue-cli原理？你可以自己实现个类vue-cli吗？
+
 ### ---------vue-router---------
 #### vue-router怎么重定向页面？
 1. 重定向也是通过 routes 配置来完成，下面例子是从 /home 重定向到 /：

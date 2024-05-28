@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>wulitian</title>
+</head>
+<body>
+<div class="router">
+    <a href="./">首页</a>
+    <a href="./user">用户列表</a>
+    <a href="./about">关于我们</a>
+</div>
+<div class="content"></div>
+<script>
+    class BaseRouter {
+        constructor () {
+            // 路由表
+            this.routes = {}
+        }
+
+        // 收集路由
+        route (path, cb) {
+            this.routes[path] = cb || function () {}
+        }
+
+        // 访问路由
+        go (path) {
+            window.history.pushState({path}, null, path)
+            const cb = this.routes[path]
+            if (cb) cb()
+        }
+    }
+
+    //实例化路由对象
+    const Route = new BaseRouter()
+    //添加路由
+    Route.route('./', () => {changeText('这是首页页面')})
+    Route.route('./user', () => {changeText('这是用户页面')})
+    Route.route('./about', () => {changeText('这是关于我们页面')})
+
+    function changeText (text) {
+        let dom = document.querySelector('.content')
+        dom.innerHTML = text
+    }
+
+    document.querySelector('.router').addEventListener('click', e => {
+        if (e.target.tagName === 'A') {
+            e.preventDefault()
+            Route.go(e.target.getAttribute('href'))
+        }
+    })
+</script>
+</body>
+</html>
