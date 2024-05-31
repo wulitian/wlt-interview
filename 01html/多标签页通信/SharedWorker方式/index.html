@@ -6,7 +6,17 @@
 </head>
 <body>
 <script>
-  localStorage.setItem('name2','wulitian')
+    const mySharedWorker = new SharedWorker('worker.js');
+    const port = mySharedWorker.port;
+    port.onmessage = function(event) {
+        // 处理来自Worker的消息
+        console.log('Received message from worker:', event.data);
+        // port.close();
+    };
+    // 发送消息给Worker
+    port.postMessage('1111');
+    port.start();
+
 </script>
 </body>
 </html>

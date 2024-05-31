@@ -1,10 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
+    <meta charset="UTF-8">
+    <title>wulitian</title>
 </head>
 <body>
-$END$
+<canvas style="width: 400px;height: 200px" id="canvas"></canvas>
+<script>
+  let canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext("2d");
+  ctx.arc(50,50,50,0,2 * Math.PI);
+  ctx.strokeStyle="blue";//将线条颜色设置为蓝色
+  ctx.stroke();//stroke() 方法默认颜色是黑色（如果没有上面一行，则会是黑色）。
+</script>
 </body>
 </html>

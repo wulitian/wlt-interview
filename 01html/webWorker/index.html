@@ -1,10 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
+    <meta charset="UTF-8">
+    <title>wulitian</title>
 </head>
 <body>
-$END$
+<script>
+  let worker = new Worker('./index.js');
+  worker.postMessage(100);
+  worker.onmessage = function(e) {
+      console.log(e.data)
+  }
+</script>
 </body>
 </html>

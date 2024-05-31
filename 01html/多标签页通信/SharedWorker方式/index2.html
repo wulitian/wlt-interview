@@ -6,9 +6,16 @@
 </head>
 <body>
 <script>
-    window.addEventListener("storage", function(e){
-        console.log(e)
-    })
+    const mySharedWorker = new SharedWorker('worker.js');
+    const port = mySharedWorker.port;
+    port.onmessage = function(event) {
+        // 处理来自Worker的消息
+        console.log('Received message from worker:', event.data);
+        // port.close();
+    };
+    // 发送消息给Worker
+    port.postMessage('333');
+    port.start();
 </script>
 </body>
 </html>
