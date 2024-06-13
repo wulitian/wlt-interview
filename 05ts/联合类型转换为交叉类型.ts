@@ -1,3 +1,4 @@
+// 利用类型推断+继承实现
 type UnionToIntersection<U> =(U extends any ? (K:U) => void: never) extends (K: infer P)=> void ? P: never
 // 测试用例
 type U0 = UnionToIntersection<string | number> // never

@@ -1,5 +1,16 @@
 ## ts
 
+#### ts中常用的语法与操作
+Omit 去除类型中某些项
+Pick 选取类型中指定类型
+Partial 将类型中所有选项变为可选
+Required 将类型中所有选项变为必选
+Extract 获取联合类型的交集
+NonNullable 获取联合类型中不是null与undefined的部分
+Parameters<F>获取函数参数
+ReturnType<F>获取函数返回值
+infer类型推断
+'-'号代表删除 '？'号代表可选
 #### 什么是TypeScript，它与JavaScript有何不同？
 ts是js的超集，为该语言提供静态类型检测，允许开发人员自定义变量、函数参数、函数返回值的数据类型有助于编译时检测数据类型
 #### 解释TypeScript中静态类型的概念及其好处。

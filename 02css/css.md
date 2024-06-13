@@ -142,7 +142,7 @@
 #### css3中的新特性有哪些
 1. 圆角，阴影
 2. 文字特效，线性渐变，旋转，缩放，定位，倾斜
-3. 唯一微元素::selection
+3. 唯一伪元素::selection
 4. 媒体查询，多栏布局
 5. border-image
 #### css合并方法
@@ -238,7 +238,6 @@ inline 元素的 margin 与 padding 左右生效，上下不生效
 #### 双冒号与单冒号的的区别
 - 单冒号表示css伪类
 - 双冒号表示css伪元素
-
 - 为了兼容css2中已有的伪元素使用单冒号after,before
 #### css中before和after中双冒号单冒号有什么区别
 1. 单冒号(:)用于CSS3伪类，双冒号(::)用于CSS3伪元素。
@@ -253,7 +252,7 @@ inline 元素的 margin 与 padding 左右生效，上下不生效
 如何匹配最前三个子元素: :nth-child(-n+3)
 如何匹配最后三个子元素: :nth-last-child(-n+3)
 #### css中属性选择器及类选择器的权重哪个高
-它俩选择器群众一样高
+它俩选择器权重一样高
 #### css中'+' 与 '~' 选择器有什么不同
 + 选择器匹配紧邻的兄弟元素
 ~ 选择器匹配随后的所有兄弟元素
@@ -292,7 +291,7 @@ inline 元素的 margin 与 padding 左右生效，上下不生效
 - :checked 单选框或复选框被选中。
 
 ### -------css盒模型------
-#### css中BFC,IFC,GFC,FF
+#### css中BFC,IFC,GFC,FFC
 1. BFC（块级上下文float 的值不为 none,overflow 的值不为 visible,position 的值不为 relative 和 static ,display 的值为 table-cell , table-caption , inline-block 中的任何⼀个）
 2. IFC（内联上下文inline-block,inline）水平居中：text-align:center,垂直居中vertical- align : middle
 3. GFC（网格上下文display:grid）
@@ -592,7 +591,7 @@ $(function() {
 多数显示器默认频率是 60Hz ，即 1 秒刷新 60 次，所以理论上最⼩间隔为1⁄60*1000ms ＝ 16.7ms
 #### css中如何实现固定长宽比的元素
 1. width: 10px; aspect-ratio: 1;
-2. 通过padding+display:inline-block设置缺点没头content的情况下才成比例
+2. 通过padding+display:inline-block设置缺点没content的情况下才成比例
 #### css中如何实现响应式布局大屏幕三等分、中屏幕二等分、小屏幕一等分
 1. 使用 Grid 布局可以轻松解决这个问题，如若使用其它方案，控制好等分的同时再控制好间距也是一个十分头疼的问题:
 grid-template-columns: 控制等分
@@ -786,7 +785,7 @@ minmx: 即书面意思，最小宽度为 300px
 #### css中的图片格式问题
 1. jpg一般能够把图片压缩小一点，就是压缩率高；
 2. png能够实现图片的透明效果；而jpg透明的部分会是白色的，同时8位的png是不能设置透明度的，只有24位可以；
-3. gif一般用来做冻土，比如等待加载的动画图片等；
+3. gif一般用来做动图，比如等待加载的动画图片等；
 4. webp Android，iOS支持。客户端里的图片显示都可以考虑webp，体积小了、流量少了、加载快了，图片质量也得到保障（同时肉眼几乎无法看出差异）
 5. 转换：
 - PNG 转 WebP 的压缩率要高于 PNG 原图压缩率，同样支持有损与无损压缩
@@ -829,7 +828,10 @@ minmx: 即书面意思，最小宽度为 300px
 2. 字体图标
 #### 写 CSS 时如何避免命名样式冲突
 1. 使用BEM方式
-2. scoped css 会对当前组件(scope)下所有元素生成唯一的属性或类名，对所有 CSS 规则将携带唯一属性实现作用域的命名保护
+   B - Block 一个独立的模块，一个本身就有意义的独立实体 比如：header、menu、container
+   E - Element 元素,块的一部分但是自身没有独立的含义 比如：header title、container input、button
+   M - Modifier 修饰符，块或者元素的一些状态或者属性标志 比如：small、checked、primary
+2. scoped css 会对当前组件(scope)下所有元素生成唯一的属性或类名，对所有 CSS 规则将携带唯一属性实现作用域的命名保护 vue中的scope转义后.main[data-v-49729759] { float: left }
 3. module css 会对类名进行 hash 化
 #### 你做前端有多少时间花在写 css 上
 如果说是开发阶段，我会用 20%-30% 的时间写 CSS。
@@ -847,7 +849,6 @@ linear-gradient(rgba(200, 200, 200, 0.1) 3%, transparent 0);
 background-size: 20px 20px;
 #### 如何自定义滚动条的样式
 滚动条相关样式都是伪元素，以 scrollbar 打头，有以下伪元素，从 -webkit 中可见兼容性一般，不过无所谓，现在 Chrome 浏览器占大头
-
 ::-webkit-scrollbar — 整个滚动条.
 ::-webkit-scrollbar-button — 滚动条上的按钮 (上下箭头).
 ::-webkit-scrollbar-thumb — 滚动条上的滚动滑块.
