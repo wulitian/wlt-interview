@@ -173,8 +173,6 @@ div ,ul ,ol ,li ,dl ,dt ,dd ,h1 ,h2 ,h3 ,h4 p
    service-worker 实现了真正的可用性及安全性。首先，相对于原有 web 应用逻辑是不可见，它类似于一个中间拦截服务，中间发生任何错误，都会退回到请求线上逻辑。其次，它只能在 https 下运行保证了安全性。
    sw 对于我们的离线化方案而言，有一个致命的问题，就是 ios webview 兼容性问题。ios 11.3 以上自带的 Safari 是支持 ws，然而， 苹果一贯的特性， 默认 UIWebView 不支持 service-worker。
    在线的情况下，浏览器发现 html 头部有 manifest 属性，它会请求 manifest ⽂件，如果是第⼀次访问 app ，那么浏览器就会根据manifest⽂件的内容下载相应的资源并且进⾏离线存储。如果已经访问过 app 并且资源已经离线存储了，那么浏览器就会使⽤离线的资源加载⻚⾯，然后浏览器会对⽐新的 manifest ⽂件与旧的 manifest ⽂件，如果⽂件没有发⽣改变，就不做任何操作，如果⽂件改变了，那么就会重新下载⽂件中的资源并进⾏离线存储。
-#### 网页中用到图片的格式
-1. png-8 、 png-24 、 jpeg 、 gif 、jpeg、 svg 、webp（谷歌开发的图⽚压缩体积⼤约只有 JPEG 的 2⁄3，WebP格式图像的体积要⽐JPEG格式图像⼩ 40%）、apng（是PNG的位图动画扩展可以实现png格式的动态图⽚效果。iOS safari 8 的⽀持）
 #### 页面可见性用途
 1. CSS属性 – visibility.其有两个常用属性值：hidden 与 visible. 分别表示不可见与可见。
    H5 引入的 Page Visibility API，能很有效地帮助我们完成这样的判断。这个 API 本身非常简单，由以下三部分组成。
