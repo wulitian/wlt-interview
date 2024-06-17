@@ -2,10 +2,14 @@
 
 ### -------webpack理解与介绍-------
 
-webpack最初实现了前端项目的模块化，起初前端都是以约定的方式进行划分的，这种形式会产生全局成员污染，模块与模块之间没有依赖关系，维护困难，没有私有空间，之后就出现了每个模块暴漏一个全局对象，这样可以解决模块依赖的的问题，后来又出现了立即执行函数的方式，这种方式不易维护，之中方式不受代码控制，难以维护，理想的方式就是页面中引入一个入口文件其余的模块通过代码控制按需引入（流行的就是commonjs，esmodule）,随着ts，less,scss等预处理器的前端项目变得十分复杂，需要通过模块化开发，使用一些特性提高开发效率，es6，ts，通过scss，less提高编写css的效率，监听文件变化实时反馈到浏览器，调高开发效率，js代码需要模块化，css需要模块化，图片资源需要模块化，开发完成还需要将代码压缩，合并，webpack刚好解决了这些问题。
+webpack最初实现了前端项目的模块化，起初前端都是以约定的方式进行划分的，这种形式会产生全局成员污染，模块与模块之间没有依赖关系，维护困难，没有私有空间，
+之后就出现了每个模块暴漏一个全局对象，这样可以解决模块依赖的的问题，后来又出现了立即执行函数的方式，这种方式不易维护，之中方式不受代码控制，难以维护，
+理想的方式就是页面中引入一个入口文件其余的模块通过代码控制按需引入（流行的就是commonjs，esModule）,随着ts，less,scss等预处理器的前端项目变得十分复杂，需要通过模块化开发，
+使用一些特性提高开发效率，es6，ts，通过scss，less提高编写css的效率，监听文件变化实时反馈到浏览器，调高开发效率，
+js代码需要模块化，css需要模块化，图片资源需要模块化，开发完成还需要将代码压缩，合并，webpack刚好解决了这些问题。
 
 ### -------webpack的构建流程-------
-1. 初始化参数，从配置文件盒shell语句中读取与合并参数，得到最终的参数
+1. 初始化参数，从配置文件shell语句中读取与合并参数，得到最终的参数
 2. 开始编译，使用这些参数初始化compiler对象，加载所有配置插件，执行run方法开始编译
 3. 确认入口，根据配置的entry找到所有入口文件
 4. 编译模块，从入口出发，调用所有配置的loader对模块进行编译，再找到模块依赖的模块，递归知道所有入口依赖文件都通过
@@ -14,21 +18,38 @@ webpack最初实现了前端项目的模块化，起初前端都是以约定的�
 7. 输出完成，再确认好输出内容后，根据配置确认输出的路径与文件名，把文件内容写到文件系统
 
 ### -------webpack的生命周期-------
-1. beforeRnu 在webpack开始读取配置之前调用
-2. run 在webpack编译时调用
-3. watchRun 在使用webpack-dev-se5rver运行时调用
-4. beforeCompile 在webpack编译前调用
-5. compile 在webpack编译完成时调用
-6. thisCompilation 在创建新的compilation时调用
-7. compilation 在编译时每个webpack生成一个新的compilation对象时调用
-8. emit 在生成资源之前调用
-9. afterEmit 在生成资源之后调用
-10. done 在webpack编译完成时调用
-11. assetEmitted 所有资源都已经输出到目录后调用
-
+初始化阶段=》编译阶段=》构建阶段=》优化阶段=》产出阶段=》完成阶段
+1. 初始化阶段
+environment:在创建webpack实例时触发，用来读取webpack配置和设置环境
+entryOption:设置入口点（entry）和选项（option）之后触发，但在开始读取模块和加载插件之前
+2. 编译阶段
+beforeRun:在开始编译前触发，异步钩子[CleanWebpackPlugin]
+run:在读取记录和模块之前触发，异步钩子
+normalModuleFactory:创建模块之前触发
+contextModuleFactory:创建模块上下文之前触发
+beforeCompile:编译器开始编译前触发
+compile:编译器开始编译时触发
+3. 构建阶段
+thisCompilation:编译器开始重新编译时触发
+compilation:在编译器开始创建新的实例时触发[DefinedPlugin,HotModuleReplacementPlugin,ProvidePlugin]
+make:当编译开始之前触发
+afterCompile:编译完成时触发
+4. 优化阶段
+optimize:在执行优化（optimization）和插件应用之前触发[OptimizeCssAssetsPlugin,terser-webpack-plugin,css-minimizer-webpack-plugin,uglifyjs-webpack-plugin]
+optimizeModules:在模块优化之前触发[OptimizeModulesPlugin]
+optimizeChunks:在块优化之前触发[OptimizeChunksPlugin]
+optimizeChunksAssets:在块资产优化前触发[OptimizeChunkAssetsPlugin]
+5. 产出阶段
+emit:在生成资源到output目录之前触发[MiniCssExtractPlugin,HtmlWebpackPlugin,inline-chunk-html-plugin,CopyWebpackPlugin]
+afterEmit:在生成资源到output目录之后触发
+6. 完成阶段
+done:编译完成时触发，包括成功与失败的情况[webpack-bundle-analyzer]
+failed:编译失败时触发
+invalid:在监听阶段编译无效时触发
+watchRun:在监听阶段每次重新编译时触发
 ### -------webpack的loader与plugin-------
 #### 说说webpack常见的loader,解决了什么问题
-1. style-loader,将css添加到dmo内联样式中
+1. style-loader,将css添加到dom内联样式中
 2. css-loader,允许css文件通过require的方式引入，并返回css
 3. less-loader,处理less
 4. sass-loader,处理sass
@@ -83,9 +104,9 @@ module: {
 6. webpack-parallel-uglify-plugin: 多进程执行代码压缩，提升构建速度
 7. HappyPack Plugin: 开启多进程打包，提升打包速度
 9. webpack-bundle-analyzer: 可视化 Webpack 输出文件的体积 (业务组件、依赖第三方模块)
-10. Dllplugin: 动态链接库，将项目中依赖的三方模块抽离出来，单独打包
-11. DllReferencePlugin: 配合 Dllplugin，通过 manifest.json 映射到相关的依赖上去
-12. Defineplugin: 允许编译时创建配置全局对象
+10. DllPlugin: 动态链接库，将项目中依赖的三方模块抽离出来，单独打包
+11. DllReferencePlugin: 配合 DllPlugin，通过 manifest.json 映射到相关的依赖上去
+12. DefinePlugin: 允许编译时创建配置全局对象
 #### 说说webpack中loader与plugin的区别，介绍编写思路
 概念上：
 1. loader是文件加载器，能够加载资源文件，并对这些文件进行一些处理，编译压缩等等，最终一起打包到指定文件中
@@ -94,13 +115,13 @@ module: {
 1. loader运行在打包文件之前
 2. plugin在整个编译周期都起作用
 #### webpack插件是如何实现的
-webpack事件流： webpack就像一条生产线，要经过一系列流程才能将源文件转换成输出结果，这条生产线上每一个处理流程职责都是单一的，只有当前流程处理完才能进入下一个流程，而插件就像是插入到生产线中的一个功能，在特定的时机对生产线上的资源进行处理。webapck事件流通过tapable实现。
+webpack事件流： webpack就像一条生产线，要经过一系列流程才能将源文件转换成输出结果，这条生产线上每一个处理流程职责都是单一的，只有当前流程处理完才能进入下一个流程，而插件就像是插入到生产线中的一个功能，在特定的时机对生产线上的资源进行处理。webpack事件流通过tapAble实现。
 插件的具体工作方式： webpack在运行过程中的不同时机会广播不同的事件，插件监听对应的事件，执行对应回调函数完成webpack资源的处理，从而实现对webpack功能的扩展。
 webpack插件实现步骤： 插件功能要求：在资源输出之前在控制台上打印所有输出资源路径。
 1，插件是一个带有apply方法的对象，那么我们可以创建一个插件类来实例该插件对象
 2，webpack会向插件对象apply方法通过参数注入compiler对象，从而接收到webpack暴露出来的一些api对webpack流程进行操作。
 3，apply方法内通过compiler.hooks.xxxHook.xxxTap('插件名','插件执行函数')的方式选择合适的compiler时机执行当前插件功能。合适的时机即xxxHook，这个xxxHooks可以理解为react的生命周期，只不过这里对应的是compiler的不同阶段，xxxTap即向xxxHook对应时机添加监听，当该时机到了触发监听函数。
-所以实现一个webpack插件并不复杂，当然我们需要先了解tapable库，因为compiler.hooks里面这些钩子对象就是tapable库中不同类型钩子的具体实现，webpack会在合适的时机通知钩子内的监听队列函数执行。同时向这些监听函数暴露webpack自身API从而监听函数能够操作webpack实现当前插件功能。
+所以实现一个webpack插件并不复杂，当然我们需要先了解tapAble库，因为compiler.hooks里面这些钩子对象就是tapAble库中不同类型钩子的具体实现，webpack会在合适的时机通知钩子内的监听队列函数执行。同时向这些监听函数暴露webpack自身API从而监听函数能够操作webpack实现当前插件功能。
 ```
 // 该插件目的即在资源输出之前在控制台上打印所有输出资源路径。
 // 所以这里的插件执行时机是【资源输出之前】，插件做的事是【控制台打印所有输出资源路径】
@@ -137,40 +158,13 @@ module.exports = MyPlugin;
 ### -------webpack优化-------
 #### webpack的开发环境热更新过慢的优化方式
 1. 合理的设置source-map类型建议设置为cheap-module-eval-source-map
-2. 更少的使用loader且loader处理的范围应该要尽量小,HappyPack、ThreadLoader多进程工具也是要慎用，他可能对于启动速度有帮助，但对热更新来说反而是增加负担。
-3. 更少的使用plugin像分包策略插件、压缩插件、css抽离插件等优化产物类的插件都是不需要的
+2. 更少使用loader且loader处理的范围应该要尽量小,HappyPack、ThreadLoader多进程工具也是要慎用，他可能对于启动速度有帮助，但对热更新来说反而是增加负担。
+3. 更少使用plugin像分包策略插件、压缩插件、css抽离插件等优化产物类的插件都是不需要的
 4. 关掉分包，因为分包也需要进行大量的计算
 5. 减少使用console.log打印
 6. 开发环境不需要用hash/chunkhash
 7. 手动修改路由表，只保留本次所需修改的路由，减少代码量也能有效提高热更新效率
 #### webpack打包速度太慢进行优化
-1，mode设置成production：生产模式默认会使用tree-shaking删除无用代码，开发模式不会开启tree-shaking
-2，开发环境中使用babel-plugin-import插件对组件库按需加载
-3，使用splitChunksPlugin将不会变化的第三方库还有共用代码抽离进行单独打包：splitChunks配置前面有写。
-4，对于不是需要立即获取的资源可以采取异步加载的方式（import().then），异步加载资源也会被单独打包成chunk，减小主包体积。
-5，开启@baebl/polyfill使用按需加载，既babel-loader配置presets添加{useBuiltsIns:usage}（不指定的话，polyfill会将所有api都实现）
-```js
-module:{
-    rules:[
-     {
-        test: /\.js$/,
-        exclude: /node_modules/,
-        use: {
-            loader: 'babel-loader',
-            options: {
-                presets: [
-                    ['@babel/preset-env'], // 主要翻译工作由@babel/preset-env实现
-                    { useBuiltIns: 'usage' } // 开启@babel/polyfill按需加载
-                ]
-            }
-        }
-    },
-    ]
-}
-```
-6，使用mini-css-webpack-plugin提取css成单独文件，减小主包体积
-7，合理使用url-loader，过大的文件使用file-loader更为合理。对于大图还可以使用image-webapck-loader进行压缩。
-#### webpack打包的体积太大如何优化
 1，限定loader作用范围，比如我们只希望对src文件夹下面内容进行babel转义，node_modules不需要。
 ```js
  module:{
@@ -193,14 +187,7 @@ module:{
         ]
     }
 ```
-2，使用noParse通知webpack哪些模块不需要解析其依赖关系：因为依赖关系解析也是耗时操作，而有些第三方依赖内部肯定不会存在依赖，比如jquery，所以我们可以手动指定这些模块不需要进行依赖关系的解析。(这些模块中没有import，require等模块化的语句，所以不需要解析依赖关系，只需要对其进行打包处理)
-```
- module:{
-        noParse:/jquery|bootstrap|lodash/, // 匹配当前正则的文的内部不需要进行依赖关系的解析
-        rules:[] // 其他loader
-    }
-```
-3，使用resolve.modules指明模块查找时的路径，避免不必要的查找
+2，使用resolve.modules指明模块查找时的路径，避免不必要的查找
 ```js
  module:{
         resolve:{
@@ -210,9 +197,9 @@ module:{
         rules:[] // 其他loader
     }
 ```
-4，代码书写尽量添加文件后缀名，减少文件匹配resolve.extentions后缀时间。
-5，使用高版本webpack，一般版本越高，工具优化越好。
-6，使用thread-loader对loader单开线程处理：因为node中webpack是单线程的，使用thread-loader可以对loader处理模块单开线程进行处理，提高打包速度。thread-loader只需要放在耗时的loader前面即可，但不能放在style-loader之前，一般放在style-loader之后，因为thread-loader之后的loader没办法存取文件以及获取wbepack的配置
+3，代码书写尽量添加文件后缀名，减少文件匹配resolve.extensions后缀时间。
+4，使用高版本webpack，一般版本越高，工具优化越好。
+5，使用thread-loader对loader单开线程处理：因为node中webpack是单线程的，使用thread-loader可以对loader处理模块单开线程进行处理，提高打包速度。thread-loader只需要放在耗时的loader前面即可，但不能放在style-loader之前，一般放在style-loader之后，因为thread-loader之后的loader没办法存取文件以及获取webpack的配置
 ```
  module:{
         rules:[
@@ -226,8 +213,8 @@ module:{
         ]
     }
 ```
-7，使用cache-loader对loader处理结果缓存到磁盘，二次打包时候读取缓存，提高打包速度。注意：缓存的读写也需要时间，所以只在必要的时候使用。 
-harder-source-webapack-plugin也可以提升二次打包时间，不过没用过。
+6，使用cache-loader对loader处理结果缓存到磁盘，二次打包时候读取缓存，提高打包速度。注意：缓存的读写也需要时间，所以只在必要的时候使用。
+harder-source-webpack-plugin也可以提升二次打包时间，不过没用过。
 ```
 module:{
         rules:[
@@ -258,6 +245,40 @@ module:{
         ]
     }
 ```
+9，使用noParse通知webpack哪些模块不需要解析其依赖关系：因为依赖关系解析也是耗时操作，而有些第三方依赖内部肯定不会存在依赖，比如jquery，所以我们可以手动指定这些模块不需要进行依赖关系的解析。(这些模块中没有import，require等模块化的语句，所以不需要解析依赖关系，只需要对其进行打包处理)
+```
+ module:{
+        noParse:/jquery|bootstrap|lodash/, // 匹配当前正则的文的内部不需要进行依赖关系的解析
+        rules:[] // 其他loader
+    }
+```
+#### webpack打包的体积太大如何优化
+1，mode设置成production：生产模式默认会使用tree-shaking删除无用代码，开发模式不会开启tree-shaking
+2，开发环境中使用babel-plugin-import插件对组件库按需加载
+3，使用splitChunksPlugin将不会变化的第三方库还有共用代码抽离进行单独打包：splitChunks配置前面有写。
+4，合理使用url-loader，过大的文件使用file-loader更为合理。对于大图还可以使用image-webpack-loader进行压缩。
+5，使用mini-css-webpack-plugin提取css成单独文件，减小主包体积
+6，对于不是需要立即获取的资源可以采取异步加载的方式（import().then），异步加载资源也会被单独打包成chunk，减小主包体积。
+7，开启@baebl/polyfill使用按需加载，既babel-loader配置presets添加{useBuildsIns:usage}（不指定的话，polyfill会将所有api都实现）
+```js
+module:{
+    rules:[
+     {
+        test: /\.js$/,
+        exclude: /node_modules/,
+        use: {
+            loader: 'babel-loader',
+            options: {
+                presets: [
+                    ['@babel/preset-env'], // 主要翻译工作由@babel/preset-env实现
+                    { useBuiltIns: 'usage' } // 开启@babel/polyfill按需加载
+                ]
+            }
+        }
+    },
+    ]
+}
+```
 #### 如何实现webpack持久化缓存
 webpack持久化存储：webpack持久化存储原理就是保证在模块内容不发生变化的同时，每次打包出来的chunk也不会发生变化，这样，浏览器缓存策略会缓存当前chunk，
 只要chunk名不发生变化且服务器设置的缓存时间够长，那么浏览器就可以一直从缓存中读取chunk，从而实现webpack输出内容在浏览器上的持久化存储，而这里我们需要做的就是保证对于相同内容的文件输出的chunk也是相同的。
@@ -285,7 +306,7 @@ webpack持久化存储：webpack持久化存储原理就是保证在模块内容
     ]
 }
 ```
-2.2：抽离稳定的第三方库/异步加载代码成为单独chunk：使用webpack的splitchunkplugin抽离第三方库代码，且输出chunk的文件名需要使用contenthash。
+2.2：抽离稳定的第三方库/异步加载代码成为单独chunk：使用webpack的splitChunkPlugin抽离第三方库代码，且输出chunk的文件名需要使用contenthash。
 使用contenthash即保证第三方库内容不变，其输出的chunk的hash不变，具体配置如下：。
 ```
  output:{
@@ -318,7 +339,7 @@ webpack持久化存储：webpack持久化存储原理就是保证在模块内容
    moduleIds: 'named' // 或者deterministic，即三位hash，不要使用natural，natural会使用数字作为moduleID
 }
 ```
-4，固定chunkID：同moduleID一样，chunk顺序的变化（入口配置中多个入口位置变化），也会导致contentHash发生变化，所以需要固定chunkID。不能让chunk使用数字作为ID。
+4，固定chunkID：同moduleID一样，chunk顺序的变化（入口配置中多个入口位置变化），也会导致contenthash发生变化，所以需要固定chunkID。不能让chunk使用数字作为ID。
 ```
 optimization:{
    chunkIds: 'named' // 或者deterministic，即三位hash，不要使用natural，natural会使用数字作为chunkID
@@ -475,7 +496,7 @@ Vite主要特点如下：
 即时的模块热更新
 真正的按需编译：利用现代浏览器支持ES Module的特性，当浏览器请求某个模块的时候，再根据需要对模块的内容进行编译，这种方式大大缩短了编译时间
 Vite 优点：vite热更新，实现按需编译，按模块更新。（特点：快） vite在生产环境通过Rollup进行打包（特点：打包体积小），生成esm模块包。（特点：快）
-Vite 缺点： 生态：生态不如webpack，wepback在于loader和plugin非常丰富 ,prod环境的构建：目前用的Rollup，原因在于esbuild对于css和代码分割不是很友好 ,还没有被大规模使用,很多问题或者诉求没有真正暴露出来
+Vite 缺点： 生态：生态不如webpack，webpack在于loader和plugin非常丰富 ,prod环境的构建：目前用的Rollup，原因在于esbuild对于css和代码分割不是很友好 ,还没有被大规模使用,很多问题或者诉求没有真正暴露出来
 #### 前端为何要进行打包和构建
 代码层面：
 编译高级语法和特性(ES6, TS, less/sass/stylus)
@@ -533,7 +554,7 @@ import导入同步模块的时候，import必须放在代码顶层（最前面�
    proxy实现代理请求后，相当于浏览器与服务端中添加一个代理者当本地发送请求的时候，代理服务器响应该请求，并将请求转发到目标服务器，目标服务器响应数据后再将数据返回给代理服务器，最终再由代理服务器将数据响应给本地在代理服务器传递数据给本地浏览器的过程中，两者同源，并不存在跨域行为，这时候浏览器就能正常接收数据
 #### module chunk 和 bundle
 webpack 中一切皆模块，每个文件都是一个模块
-chunk 是 webppack 打包过程中 modules 的集合，它是打包过程中的概念，(enrty, splitChunk, runtimeChunk, import 异步加载会产生 chunk)
+chunk 是 webpack 打包过程中 modules 的集合，它是打包过程中的概念，(entry, splitChunk, runtimeChunk, import 异步加载会产生 chunk)
 bundle 打包后最终输出的一个或多个文件
 #### chunk 和 bundle 之间的关系
 大多数情况下一个 chunk 对应一个 bundle
@@ -592,9 +613,9 @@ Webpack 通常只处理 JavaScript 模块，对于其他类型的模块（如 CS
 如果是期望提取某个模块成单独的chunk，我们可以是使用splitChunksPlugin（webpack4之前是 CommonsChunkPlugin）进行提取，splitChunksPlugin在前面《webpack抽取公共文件如何配置》有说明使用方法
 如果是期望对一个库内的对个内容只打包使用到的内容（即目前不能tree-shaking的时候），可以是使用babel-plugin-import，前面《import {Button} from 'antd'，打包的时候只打包button，分模块加载，是如何做到的》有说明。
 #### 你是怎么配置开发环境的
-1，使用html-webapck-plugin输出html文件：可以通过配置指定输出html按照什么模板生成，也可以指定输出html引入的chunks，还可以配置多个html-webapck-plugin输出多个html
+1，使用html-webpack-plugin输出html文件：可以通过配置指定输出html按照什么模板生成，也可以指定输出html引入的chunks，还可以配置多个html-webpack-plugin输出多个html
 2，使用(style-loader|mini-css-extract-plugin.loader)，css-loader,postcss-loader，sass-loader处理样式文件：
-style-loader将最终css插入heml的head中（style标签）
+style-loader将最终css插入html的head中（style标签）
 mini-css-extract-plugin.loader：配合该插件将css样式提取到单独文件
 css-loader将css样式模块处理成一个样式资源
 postcss-loader：配合autoprefixer插件将样式对不同浏览器中做兼容处理
@@ -603,9 +624,9 @@ sass-loader：处理sass样式文件
 4，使用babel-loader等loader处理es6+模块：需要安装的模块由babel-loader,@babel/core,@babel/preset-env,@babel/polyfill，@babel/polyfill配置useBuiltIns开启polyfill按需加载。
 5，配置webpack.config.js中的devServer：建立当前资源服务器，可以实现资源热加载，资源转发，资源压缩等功能
 6，使用mini-css-extract-plugin提取css资源
-7，使用webapck自带splitChunksPlugin对不经常改变第三方库以及公共代码提取到单独文件输出
-8，使用contentHash生成hash，实现资源缓存：相较于hash/chunkHash，这两个可以更精确的生成hash，避免每次改动代码所有hash都变化，尽量控制到只发生改动的模块的hash值发生变化。
-9，使用devtool使用sourcemap定位出问题的源代码位置，而不是打包之后的代码位置：devtool在开发环境默认设置为source-map，即开启问题代码定位功能，设置fasle，则关闭，一般开发环境设置cheap-module-eval-source-map，生产环境设置cheap-module-source-map。
+7，使用webpack自带splitChunksPlugin对不经常改变第三方库以及公共代码提取到单独文件输出
+8，使用contenthash生成hash，实现资源缓存：相较于hash/chunkhash，这两个可以更精确的生成hash，避免每次改动代码所有hash都变化，尽量控制到只发生改动的模块的hash值发生变化。
+9，使用devtool使用sourcemap定位出问题的源代码位置，而不是打包之后的代码位置：devtool在开发环境默认设置为source-map，即开启问题代码定位功能，false，则关闭，一般开发环境设置cheap-module-eval-source-map，生产环境设置cheap-module-source-map。
 10, cache-loader与babel-loader开启缓存，提高第二次打包速度：babel-loader设置cacheDirectory:true，cache-loader则放在需要缓存的loader前面。
 11，loader配置中使用exclude/include缩小loader匹配范围
 12，配置resolve.alias配置模块路径别名，使得模块引入时更简单
@@ -717,7 +738,7 @@ DllReferencePlugin 用于告诉 webpack 使用哪个 manifest 文件来动态加
 为什么要压缩合并打包：这些操作可以减小资源体积，降低http资源请求数量，从而加快http资源请求速度。
 #### webpack中的compiler与compilation对象以及他们之间区别。
 compiler：compiler只在webpack启动时构建一次，由webpack所有配置项构建生成。它代表webpack从启动到关闭的整个生命周期。
-compilation：compilation代表的只是一次新的编译，只要文件有改动，compilation就会被重新创建，从而生成一组新的编译资源。一个 Compilation 对象表现了当前的模块资源、编译生成资源、变化的文件、以及被跟踪依赖的状态信息，简单来讲就是把本次打包编译的内容存到内存里。Compilation 对象也提供了插件需要自定义功能的回调，以供插件做自定义处理时选择使用拓展。
+compilation：compilation代表的只是一次新的编译，只要文件有改动，compilation就会被重新创建，从而生成一组新的编译资源。一个Compilation对象表现了当前的模块资源、编译生成资源、变化的文件、以及被跟踪依赖的状态信息，简单来讲就是把本次打包编译的内容存到内存里。Compilation对象也提供了插件需要自定义功能的回调，以供插件做自定义处理时选择使用拓展。
 compiler，compilation区别：compiler代表webpack从启动到关闭的整个生命周期，而compilation代表的只是一次新的编译，只要文件有改动，compilation就会被重新创建
 #### webpack如何把js，css，html文件单独打成一个包
 javascript：webpack会根据入口js文件根据其内部依赖引用关系最终将js打成一个包
