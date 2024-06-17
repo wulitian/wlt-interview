@@ -24,7 +24,7 @@
 
 4. dom事件流
 
-- 事件的冒泡:一层一层往上冒知道最外层html,document，阻止冒泡事件对象中有一个stopPropagation()，return false,(组织默认行为事件对象有一个方法preventDefalut,事件目标srcElement) （ie阻止冒泡cancelBubble = true，组织默认行为returnValue = false,事件目标targer）
+- 事件的冒泡:一层一层往上冒知道最外层html,document，阻止冒泡事件对象中有一个stopPropagation()，return false,(组织默认行为事件对象有一个方法preventDefault,事件目标srcElement) （ie阻止冒泡cancelBubble = true，组织默认行为returnValue = false,事件目标target）
 
 - 事件的捕获:与冒泡相反
 

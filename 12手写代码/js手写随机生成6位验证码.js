@@ -1,3 +1,4 @@
+// 生成6为验证码支持定义验证码范围，实现可以重复与不可以重复的6为验证码
 const random = (n) => {
     return Math.floor(Math.random() * (n + 1));
 }

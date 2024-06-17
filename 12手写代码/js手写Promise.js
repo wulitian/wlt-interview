@@ -54,7 +54,7 @@ class JsPromise {
         };
         let promsie2 = new JsPromise((resolve, reject) => {
             // 判断状态
-            if (this.status === SUCCESS) {
+            if (this.status === FULFILLED) {
                 setTimeout(() => {
                     try {
                         let x = successCallback(this.value);

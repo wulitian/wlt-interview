@@ -6,7 +6,7 @@ es5
 
 - 改变数组的方法：push(),unshift(),pop(),shift(),splice(),sort(),reverse()
 
-- 不改变数组的方法：slice(),concat(),slice(),join(),indexOf(),lastIndexOf(),filter(),map(),every(),some(),forEach(),find(),findIndex(),includes()
+- 不改变数组的方法：slice(),concat(),join(),indexOf(),lastIndexOf(),filter(),map(),every(),some(),forEach(),find(),findIndex(),includes()
 
 1. push()后增：末尾添加返回长度
 

@@ -20,7 +20,7 @@ try {
 
 - Error：基类。
 
-- EavlError：eval函数抛出。
+- EvalError：eval函数抛出。
 
 - RangeError：数组越界抛出。
 

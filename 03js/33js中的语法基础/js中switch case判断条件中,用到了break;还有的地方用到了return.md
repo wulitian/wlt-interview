@@ -4,6 +4,6 @@
 
 1. 执行break会跳出switch ,然后执行switch下面的语句。不用break会发生击穿现象,执行到下一个case,
 
-2.  执行return跳出方法。
+2. 执行return跳出方法。
    
   

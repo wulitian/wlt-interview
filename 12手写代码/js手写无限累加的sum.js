@@ -10,4 +10,4 @@ function sum(...args) {
     return fn
 }
 
-console.log(sum(1, 2)(2).valueOf())
+console.log(sum(1, 2,3).valueOf())

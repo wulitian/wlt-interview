@@ -29,7 +29,7 @@
 
 ​       监听方法，原生有两个方法用来添加和移除事件处理程序：addEventListener()和removeEventListener()。IE下的DOM2事件通过attachEvent绑定和 detachEvent 进行移除事件，他们接收的参数都一样。事件执行过程以及写法有所不同
         注意： IE9及之后的版本都能兼容 addEventListener了
-        addEvenetListener()、removeEventListener() 有三个参数：
+        addEventListener()、removeEventListener() 有三个参数：
         第一个参数是事件名（如click, IE是 onclick）；
         第二个参数是事件处理程序函数；
         第三个参数如果是true则表示在捕获阶段调用，为false表示在冒泡阶段调用。

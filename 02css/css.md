@@ -226,9 +226,6 @@ inline 元素的 margin 与 padding 左右生效，上下不生效
 8. :checked单选框或复选框被选中。
 9. :after在元素之前添加内容,也可以用来做清除浮动。
 10. :before:在元素之后添加内容
-11. :enabled控制表单控件的禁用状态。
-12. :disabled控制表单控件的禁用状态。
-13. :checked单选框或复选框被选中。
 #### css伪元素
 - 单双冒号都行：before,after,first-letter,first-line
 - 仅双冒号：selection,placeholder,backdrop
@@ -322,11 +319,11 @@ inline 元素的 margin 与 padding 左右生效，上下不生效
 
 ### -------css布局------
 #### css上下左右居中居中对齐
-1. 父position:relative 子元素position:absolute,left:50% top:50%;margin-top margin-left 指定为负数绝对值为自身宽度一半(有宽度)
-2. 父position:relative 子元素position:absolute,margin: auto（有宽度）left,right,bottom,top均为0
-3. 父position:relative 子元素position:absolute,left:50% top:50%;transform:translateX(-50%)transform:translateY(-50%)
-5. 父display:flex 子元素margin: 0 auto
-6. 父设置三个属性 display:flex； align-items: center; justify-content: center;
+1. 父position:relative 子元素position:absolute, left:50% top:50%;margin-top margin-left 指定为负数绝对值为自身宽度一半(有宽度)
+2. 父position:relative 子元素position:absolute, margin: auto（有宽度）left,right,bottom,top均为0
+3. 父position:relative 子元素position:absolute, left:50% top:50%;transform:translateX(-50%)transform:translateY(-50%)
+4父display:flex 子元素margin: 0 auto
+5父设置三个属性 display:flex； align-items: center; justify-content: center;
 #### css中如何实现表格单双行条纹样式
 tr设置nth-child(2n)/nth-child(even): 双行样式
 tr设置nth-child(2n+1)/nth-child(odd): 单行样式
@@ -398,8 +395,8 @@ align-content 作用于纵轴多行元素，一行元素不起作用
 align-items 作用于纵轴单行元素
 #### css中Flex布局中的 flex-basis 与 width 有何区别
 flex-basis用于在flex布局时候给定项目的一个初始值， 默认情况下是auto，也就是说根据容器宽度去自动计算，width是给定项目固定宽度。
-当flex布局的主轴是水平方向即flex-direction: row;那么flex-basis设定的就是初始宽度，如果同时存在width，width会覆盖flex-basis属性
-当flex布局的主轴是垂直方向即flex-direction: column;那么flex-basis设定的就是初始高度，如果同时存在height，width会覆盖flex-basis属性; demo示例
+当flex布局的主轴是水平方向即flex-direction: row;那么flex-basis设定的就是初始宽度，如果同时存在width，width会覆盖flex-basis属性。
+当flex布局的主轴是垂直方向即flex-direction: column;那么flex-basis设定的就是初始高度，如果同时存在height，width会覆盖flex-basis属性。
 #### css中line-height 的值分别取 [2, 2em, 200%] 有什么区别?
 父元素: fontSize: 18px; lineHeight: 1.5em(27px，150% 同理); ，它的 lineHeight 计算下来为 27px，会被子元素继承
 子元素: fontSize: 30px，子元素的 lineHeight 被继承为 27px，出现问题

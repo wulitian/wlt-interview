@@ -12,37 +12,17 @@
 </div>
 <div id="context"></div>
 <script>
-    class BaseRouter {
-        constructor() {
-            this.routes = {};
-            this.refresh = this.refresh.bind(this);
-
-            window.addEventListener('load', this.refresh);
-            window.addEventListener('hashchange', this.refresh);
-        };
-
-        // 对路由进行收集
-        route(path, cb) {
-            this.routes[path] = cb || function(){};
-        };
-
-
-
-        refresh() {
-            const path = `/${window.location.hash.slice(1) || ''}`;
-            this.routes[path]();
+    let routerView = document.getElementById('context');
+    window.addEventListener('hashchange',()=>{
+        routerView.innerText = location.hash
+    })
+    window.addEventListener('load', ()=>{
+        if(!location.hash) {
+            location.hash = ''
+        } else {
+            routerView.innerText = location.hash
         }
-    }
-
-    const Route = new BaseRouter();
-
-    Route.route('/about', () => changeText("关于我们页面"));
-    Route.route('/user', () => changeText("用户列表页"));
-    Route.route("/", () => changeText("首页页面"));
-
-    function changeText(arg) {
-        document.getElementById('context').innerHTML = arg;
-    }
+    })
 </script>
 </body>
 </html>

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>wulitian-study</title>
+    <title>wulitian</title>
     <style>
         html,body{height: 100%;padding: 0;margin: 0}
         iframe{width: 100%;height: 100%;}
@@ -13,8 +13,8 @@
 
 <script>
     function iFrameHeight() {
-        var ifm= document.getElementById("iframepage");
-        var subWeb = document.frames ? document.frames["iframepage"].document : ifm.contentDocument;
+        const ifm= document.getElementById("iframepage");
+        const subWeb = document.frames ? document.frames["iframepage"].document : ifm.contentDocument;
         if(ifm != null && subWeb != null) {
             ifm.height = subWeb.body.scrollHeight;
             ifm.width = subWeb.body.scrollWidth;
