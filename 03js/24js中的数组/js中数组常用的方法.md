@@ -1,7 +1,5 @@
 # js中数组常用的方法
 
-#### 精简回答：
-
 es5
 
 - 改变数组的方法：push(),unshift(),pop(),shift(),splice(),sort(),reverse()

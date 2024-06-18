@@ -1,7 +1,5 @@
 # js正则表达式（Regular Expression regex regexp RE）
 
-#### 精简回答：
-
 1.定义：正则表达式是由字符串形成的搜索模式（/正则表达式主体/修饰符(可选)）
 
 var patt=new RegExp(pattern,modifiers);
@@ -14,9 +12,6 @@ var patt=/pattern/modifiers;
 var re = new RegExp("\\w+");
 var re = /\w+/;
 ```
-
-
-
 2.正则表达模式：
 
 |  修饰符   | 描述  |

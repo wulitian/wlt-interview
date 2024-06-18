@@ -24,7 +24,6 @@ const obj = {
   name: "WULITIAN"
 }
 
-
 fn.bind(undefined)()
 fn.bind(obj)()
 fn.bind(obj, 1,2)()

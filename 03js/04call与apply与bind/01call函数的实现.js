@@ -21,7 +21,6 @@ const obj = {
     name:"WULITIAN"
 }
 
-
 fn.call(undefined)
 fn.call(obj)
 fn.call(obj,1,2)

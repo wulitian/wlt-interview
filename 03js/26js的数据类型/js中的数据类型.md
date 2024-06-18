@@ -1,7 +1,5 @@
 # js中的数据类型
 
-#### 精简回答：
-
 1.数据类型:基本数据类型，引用数据类型
 
 2.基本数据类型
@@ -27,8 +25,3 @@ Object function
 基本数据类型存储在栈中（Undefined，Null，Boolean，Number、String、BigInt 、Symbol ）
 
 应用数据类型存储在堆中（对象、数组和函数）
-
-
-
-
-

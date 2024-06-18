@@ -1,7 +1,5 @@
 # js中常见的数字方法
 
-#### 精简回答：
-
 1.Math.abs(number)绝对值
 
 2.Math.ceil(number)向上取整

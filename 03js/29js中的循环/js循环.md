@@ -1,7 +1,5 @@
 # js循环
 
-#### 精简回答：
-
 1. for:数组循环 
 
 2. for in：对象循环 最好写个判断obj[i].hasOwnProperty(i)因为也去原型链查找

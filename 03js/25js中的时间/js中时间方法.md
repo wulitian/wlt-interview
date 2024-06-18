@@ -1,7 +1,5 @@
 # js中时间方法
 
-#### 精简回答：
-
 1.getFullYear()年
 
 2.getMonth()+1月从0开始

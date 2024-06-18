@@ -1,6 +1,5 @@
 # js中数据类型的判断
 
-#### 精简回答：
 1. typeof,判断除了null 
 
 2. Object.prototype.tostring.call()的值有9个Number,Function,String,Boolean, Object,Array,Null,RegExp,Date 

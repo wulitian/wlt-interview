@@ -1,7 +1,5 @@
 # js中的dom
 
-#### 精简回答：
-
 1.创建元素document.creatElement(标签)
 
 2.添加元素parent.appendChild(childNode);
@@ -91,3 +89,4 @@
 - getElementsByName() //通过元素的Name属性的值(IE容错能力较强，会得到一个数组，其中包括id等于name值的)
 
 - getElementById() //通过元素Id，唯一性
+

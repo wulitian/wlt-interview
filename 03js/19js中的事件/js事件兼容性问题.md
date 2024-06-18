@@ -1,7 +1,5 @@
 # js事件兼容性问题
 
-#### 精简回答：
-
 1.事件对象本身
 
   - 标准浏览器是发生时自动给方法传一个实参，IE是全局的window.event
@@ -18,7 +16,7 @@
 
   - 标准浏览器是element.addEventListener，IE下是element.attachEvent:
   
-```js
+```
     if(ele.addEventListener){
         //....
     }else if(ele.attachEvent){
@@ -39,7 +37,7 @@
 
   - 标准浏览器是e.pageX，e.pageY，但IE不支持这两个属性，但都支持clientX，clientY，这是相对于浏览器的鼠标坐标，可以通过scrollTop+clientY来实现。
 
-```js
+```
     e.pageX=(document.documentElement.scrollLeft||document.body.scrollLeft)+ e.clientX;
     e.pageY=(document.documentElement.scrollTop||document.body.scrollTop)+ e.clientY;
 ```

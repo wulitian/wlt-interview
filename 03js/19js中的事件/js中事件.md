@@ -1,7 +1,5 @@
 # js中事件
 
-#### 精简回答：
-
 1. dom0
 
 - （0级dom事件）标签上onclick，js中写onclick，事件会覆盖

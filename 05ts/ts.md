@@ -369,7 +369,7 @@ declare module 'external-library' {
   export function greet(name: string): string;
 }
 // Augment the module
-// augmentations.d.ts
+// augmentations.d
 declare module 'external-library' {
   export function goodbye(name: string): string;
 }
@@ -428,4 +428,435 @@ function printLength(value: string | number): void {
 }
 printLength('Hello'); // Output: "The length of the string is 5."
 printLength(42); // Output: "The value is a number: 42."
+```
+#### 为函数添加入参
+```
+// 为函数添加入参的实现
+type Fn = (a: number, b: string) => number
+type AppendArgument<F extends (...arg: any) => any, A> = (x: A, ...rest: Parameters<F>) => ReturnType<F>;
+
+type FinalFn = AppendArgument<Fn, boolean>;
+
+let a: Fn = (a: number, b: string): number => {
+    return 12;
+}
+let b: FinalFn = (x: boolean, a: number, b: string): number => {
+    return 12;
+}
+a(123, '12');
+b(false,123, '12');
+// (x: boolean, a: number, b: string) => number
+```
+#### 函数的重载
+```
+function f(a: string, b: string)
+function f(a: number, b: number)
+function f(a: string | number, b: string | number) {
+    if (typeof a === 'string' && b === 'string') {
+        return a + ':' + b;
+    } else if(a === 'number' && b === 'number') {
+        return a + b;
+    }
+}
+
+f(2, 3);
+// f(1, 'a');
+// f('a', 2);
+f('a', 'b');
+```
+#### 判断指定类型是否是never
+```
+type IsNever<T> = [T] extends [never] ? true : false
+
+type I0 = IsNever<never> // true
+type I1 = IsNever<never | string> // false
+type I2 = IsNever<null> // false
+
+const a:I0 = true
+const b:I1 = false
+const c:I2 = false
+
+```
+#### 判断指定类型是否是联合类型
+```
+// 联合类型作为泛型的时候 extends 会触发分发执行
+// 联合类型T 写成 [T] 就变成了普通类型，extends的时候不会分发执行
+// 这里第一步的 T extends any 肯定为真，这个其实就是利用其分发的特性，后面的 [T] 就是一个联合类型拆开后的某一个，因此如果是联合类型的话 [U] extends [T] 一定为否
+type IsUnion<T, U = T> = T extends any ? [U] extends [T] ? false: true : never
+type I0 = IsUnion<string|number> // true
+type I1 = IsUnion<string|never> // false
+type I2 = IsUnion<string|unknown> // false
+// 测试一下never结论就是 [U] extends [T]是false时代表是联合类型
+type I3 = string|never extends never ? true: false;
+const d:I3 = false
+const a:I0 = true
+const b:I1 = false
+const c:I2 = false
+```
+#### 去除字符串左右两侧空格
+```
+type TrimLeft<V extends string> = V extends ` ${infer U}` ? TrimLeft<U>: V;
+type TrimRight<V extends string> = V extends `${infer U} ` ? TrimRight<U>: V;
+type Trim<V extends string> = TrimRight<TrimLeft<V>>
+// 测试用例
+type B = Trim<'   wulitian '>
+//=> 'wulitian'
+const a:B = 'wulitian'
+```
+#### 实现Chainable
+```
+declare const config: Chainable
+
+type Chainable<T = {}> = {
+    option<K extends string, V>(key: K, value: V): Chainable<T & { [P in K]: V }>;
+    get(): { [P in keyof T]: T[P] };
+}
+
+const result = config
+    .option('age', 7)
+    .option('name', 'a')
+    .option('address', { value: 'b' })
+    .get()
+
+type ResultType = typeof result
+```
+#### 实现curry柯里化工具类
+```
+type Curry<F extends (...args: any[]) => any,
+    P extends any[] = Parameters<F>,
+    R = ReturnType<F>> = P extends [infer P1, ...infer P2] ?
+    (P2 extends [] ? (arg: P[0]) => R : (arg: P[0]) => Curry<F, P2, R>)
+    : () => R;
+type F0 = Curry<() => number>; // () => number
+type F1 = Curry<(a: number) => number>; // (arg: number) => number
+type F2 = Curry<(a: number, b: string) => number>; //  (arg_0: number) => (b: string) => number
+
+const a: F0 = () => 1
+const b: F1 = (a) => 1
+const c: F2 = (a) => (b) => 1
+```
+#### 实现equal工具类
+```
+type IsEqual<A, B> = [A] extends [B] ? [B] extends [A] ? true : false : false// 你的实现代码
+
+// 测试用例
+type E0 = IsEqual<1, 2>; // false
+type E1 = IsEqual<{ a: 1 }, { a: 1 }> // true
+type E2 = IsEqual<[1], []>; // false
+
+const a:E0 = false
+const b:E1 = true
+const c:E2 = false
+```
+#### 实现Includes
+```
+type Includes<T extends Array<any>, E> = E extends T[any] ? true: false
+
+type I0 = Includes<[], 1> // false
+type I1 = Includes<[2, 2, 3, 1], 2> // true
+type I2 = Includes<[2, 3, 3, 1], 1> // true
+
+const a:I0 = false;
+const b:I1 = true;
+const c:I2 = true;
+```
+#### 实现merge工具类
+```
+type Foo = {
+    a: number;
+    b: string;
+};
+
+type Bar = {
+    b: number;
+};
+
+type Merge<FirstType, SecondType> = Omit<FirstType, Extract<keyof FirstType, keyof SecondType>> & SecondType// 你的实现代码
+
+const ab: Merge<Foo, Bar> = { a: 1, b: 2 };
+```
+#### 实现Push
+```
+type Push<T extends any[], V> = [...T, V];
+
+// 测试用例
+type Arr0 = Push<[], 1> // [1]
+type Arr1 = Push<[1, 2, 3], 4> // [1, 2, 3, 4]
+const a: Arr0 = [1]
+const b: Arr1 = [1, 2, 3, 4]
+```
+#### 实现Reverse
+```
+type Reverse<
+    T extends Array<any>,
+    R extends Array<any> = []
+    > = T extends [infer T1, ...infer T2] ? Reverse<T2, [T1,...R]> : R
+type R0 = Reverse<[]> // []
+type R1 = Reverse<[1, 2, 3]> // [3, 2, 1]
+
+const a: R0 = [];
+const b: R1 = [3, 2, 1];
+```
+#### 实现Shift
+```
+type Shift<T extends any[]> = T extends [infer L, ...infer R] ? [...R] : []
+
+// 测试用例
+type S0 = Shift<[1, 2, 3]> // [2, 3]
+type S1 = Shift<['string', 'number', 'boolean']> // ['number', 'boolean']
+
+const a: S0 = [2, 3]
+const b: S1 = ['number', 'boolean']
+```
+#### 实现Split
+```
+type Item = 'a,b,c';
+
+type Split<
+    S extends string,
+    Delimiter extends string,
+    > = S extends `${infer S1}${Delimiter}${infer S2}` ? [S1,...Split<S2, Delimiter>]: [S]
+
+type ElementType = Split<Item, ','>; // ["a", "b", "c"]
+
+const a:ElementType = ["a", "b", "c"]
+```
+#### 实现ToPath路径专元组
+```
+type ToPath<S extends string> = S extends `${infer D1}.${infer D2}` ?
+    D1 extends `${infer D3}[${infer D4}]` ? [D3, D4, ...ToPath<D2>] : [D1, ...ToPath<D2>] : [S]
+
+//=> ['foo', 'bar', 'baz']
+//=> ['foo', '0', 'bar', 'baz']
+const a: ToPath<'foo.bar.baz'> = ['foo', 'bar', 'baz']
+const b: ToPath<'foo[0].bar.baz'> = ['foo', '0', 'bar', 'baz']
+```
+#### 实现Unshift
+```
+type Unshift<T extends any[], E> = [E, ...T]
+
+// 测试用例
+type Arr0 = Unshift<[], 1>; // [1]
+type Arr1 = Unshift<[1, 2, 3], 0>; // [0, 1, 2, 3]
+
+const a: Arr0 = [1]
+const b: Arr1 = [0, 1, 2, 3]
+```
+#### 实现只能定义空对象
+```
+type obj = {
+    [key in string]: never
+}
+const a:obj = {
+    // a:1
+};
+type SomeType = {
+    prop: string
+}
+// 更改以下函数的类型定义，让它的参数只允许严格SomeType类型的值
+function takeSomeTypeOnly<T1 extends SomeType, T2 = T1>(x: {
+    [key in keyof T2]: key extends keyof T1 ? T2[key]: never
+} ) { return x }
+
+// 测试用例：
+const x = { prop: 'a' };
+takeSomeTypeOnly(x) // 可以正常调用
+
+const y = { prop: 'a', additionalProp: 'x' };
+// takeSomeTypeOnly(y) // 将出现编译错误
+```
+#### 实现定义非空数组
+```
+type NonEmptyArray<T> = T[] & {0: T}// 你的实现代码
+
+// const a: NonEmptyArray<string> = [] // 将出现编译错误
+const b: NonEmptyArray<string> = ['Hello TS'] // 非空数据，正常使用
+```
+#### 实现数组扁平化
+```
+type NaiveFlat<T extends any[]> = T[number] extends any[] ? NaiveFlat<T[number]> : T[number]
+// 测试用例：
+type NaiveResult = NaiveFlat<[['a'], ['b', 'c'], ['d']]>;
+
+type DeepFlat<T extends any[]> = {
+    [key in keyof T]: T[key] extends any[] ? NaiveFlat<T[key]> : T[key];
+}[number];
+
+// 测试用例
+type Deep = [['a'], ['b', 'c'], [['d']], [[[['e']]]]];
+type DeepTestResult = DeepFlat<Deep>;
+
+const a:NaiveResult = 'a';
+const b:NaiveResult = 'b';
+const c:NaiveResult = 'c';
+const d:NaiveResult = 'd';
+const a2:DeepTestResult = 'a';
+const b2:DeepTestResult = 'b';
+const c2:DeepTestResult = 'c';
+const d2:DeepTestResult = 'd';
+```
+#### 实现条件Partial
+```
+type Foo = {
+    a: number;
+    b?: string;
+    c: boolean;
+}
+type SetOptional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
+// type SetOptionalOmit<T, K extends keyof T> = Pick<T, K> & Partial<Omit<T, K>>;
+// type SetRequired<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>;
+// type SetRequiredOmit<T, K extends keyof T> = Pick<T, K> & Required<Omit<T, K>>;
+
+// 测试用例
+type SomeOptional = SetOptional<Foo, 'a' | 'b'>;
+
+const obj: SomeOptional = {
+    // a: 1,
+    // b: '123',
+    c: false
+}
+```
+#### 实现条件pick
+```
+interface Example {
+    a: string;
+    b: string | number;
+    c: () => void;
+    d: {};
+}
+
+type keyOf<T> = T[keyof T]
+type ConditionalPick<T, U> = Pick<T, NonNullable<keyOf<{ [key in keyof T]: T[key] extends U ? key : null }>>>
+// 测试用例：
+type StringKeysOnly = ConditionalPick<Example, string>;
+
+let fn: StringKeysOnly = {
+    a:'a',
+}
+```
+#### 实现至少包含一个key
+```
+type Responder = {
+    text?: () => string;
+    json?: () => string;
+    secure?: boolean;
+};
+// 这里利用了联合类型作为泛型是 extends 会分发处理的特性，之后将去掉某个属性的类型与只有某个属性，且必填的类型做交叉合并
+type RequireAtLeastOne<
+    ObjectType,
+    KeysType extends keyof ObjectType = keyof ObjectType,
+    > = KeysType extends KeysType ? Required<Pick<ObjectType, KeysType>> & Partial<Omit<ObjectType, KeysType>> : never
+
+// 表示当前类型至少包含 'text' 或 'json' 键
+const responder: RequireAtLeastOne<Responder, 'text' | 'json'> = {
+    json: () => '{"message": "ok"}',
+    secure: true
+};
+```
+#### 数组转字符串
+```
+type InferToString<T> = T extends string ? `${T}` : never;
+
+// type JoinStrArray<
+//     Arr extends string[],
+//     Separator extends string,
+//     Result extends string = ''
+//     > = Arr extends [infer S1, ...infer S2] ?
+//     S2 extends [] ? `${Result}${InferToString<S1>}`
+//         : S2 extends string[] ? JoinStrArray<S2, Separator, `${Result}${InferToString<S1>}${Separator}`> : never
+//     : Result;
+
+type JoinStrArray<Arr extends string[], Separator extends string> =
+    Arr extends [infer A, ...infer B]
+    ? `${A extends string ? A : ''}${B extends [string, ...string[]]
+        ? `${Separator}${JoinStrArray<B, Separator>}`
+        : ''}`
+    : '';
+// 测试用例
+type Names = ["one", "two", "three"]
+type NamesComma = JoinStrArray<Names, ","> // "one,two,three"
+type NamesSpace = JoinStrArray<Names, " "> // "one two three"
+type NamesStars = JoinStrArray<Names, "⭐"> // "one⭐two⭐three"
+```
+#### 移除对象类型readonly修饰符
+```
+type Foo = {
+    readonly a: number;
+    readonly b: string;
+    readonly c: boolean;
+};
+type CreateMutable<T> = {
+    -readonly [key in keyof T]: T[key]
+}
+type Mutable<T, Key extends keyof T = keyof T> = CreateMutable<Pick<T,Key>> & Omit<T, Key>
+
+const mutableFoo: Mutable<Foo, 'a'> = { a: 1, b: '2', c: true };
+
+mutableFoo.a = 3; // OK
+// mutableFoo.b = '6'; // Cannot assign to 'b' because it is a read-only property.
+```
+#### 移除已有类型中的索引签名
+```
+interface Foo {
+    [key: string]: any;
+    [key: number]: any;
+    bar(): void;
+}
+
+type RemoveIndexSignature<T> = {[key in keyof T as number extends key ? never: string extends key? never: key]: T[key]}
+
+type FooWithOnlyBar = RemoveIndexSignature<Foo>; //{ bar: () => void; }
+
+const a:FooWithOnlyBar = {
+    bar() {
+    }
+}
+```
+#### 类型的继承
+```
+type User = {
+    id: number;
+    kind: string;
+};
+
+function makeCustomer<T extends User>(u: T): T {
+    return {
+        ...u,
+        id: u.id,
+        kind: 'customer'
+    };
+}
+```
+#### 联合类型转换为交叉类型
+```
+// 利用类型推断+继承实现
+type UnionToIntersection<U> =(U extends any ? (K:U) => void: never) extends (K: infer P)=> void ? P: never
+// 测试用例
+type U0 = UnionToIntersection<string | number> // never
+type U1 = UnionToIntersection<{ name: string } | { age: number }> // { name: string; } & { age: number; }
+const a:U1 = {name:'string', age: 1}
+```
+#### 获取数组类型的第一个类型
+```
+
+type Head<T extends Array<any>> = T[0] extends undefined ? never : T[0]
+
+// 测试用例
+type H0 = Head<[]> // never
+type H1 = Head<[1]> // 1
+type H2 = Head<[3, 2]> // 3
+const b:H1 = 1
+const c:H2 = 3
+```
+#### 获取数组类型除了第一个类型外
+```
+type Tail<T extends Array<any>> =  T extends [infer L, ...infer R] ? R : []
+
+// 测试用例
+type T0 = Tail<[]> // []
+type T1 = Tail<[1, 2]> // [2]
+type T2 = Tail<[1, 2, 3, 4, 5]> // [2, 3, 4, 5]
+const a:T0 = [];
+const b:T1 = [2];
+const c:T2 = [2, 3, 4, 5];
 ```

@@ -23,7 +23,6 @@ const obj = {
     name: "WULITIAN"
 }
 
-
 fn.apply(undefined)
 fn.apply(obj)
 fn.apply(obj, [1,2])
