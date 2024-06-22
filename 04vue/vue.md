@@ -733,7 +733,7 @@ import Vue from 'vue';
 import MyPlugin from 'my-plugin';
 Vue.use(MyPlugin);
 ```
-2. 局部引入:在需要使用插件的组件中进行局部引入。可以在组件的<script>块中使用import语句引入插件，然后在components选项或directives选项中使用。
+2. 局部引入:在需要使用插件的组件中进行局部引入。可以在组件的`<script>`块中使用import语句引入插件，然后在components选项或directives选项中使用。
 3. 插件选项引入: 一些插件允许通过传递选项来进行引入和配置。可以在组件的选项中通过plugins属性来引入插件并进行配置
 ```
 export default {
@@ -1333,7 +1333,7 @@ Prop 名大小写：在声明 prop 的时候，其命名应该始终使用 camel
 组件 / 实例的选项的顺序
 元素特性的顺序
 组件 / 实例选项中的空行：在多个属性之间增加一个空行，特别是在这些选项一屏放不下，需要滚动才能都看到的时候。
-单文件组件的顶级元素的顺序：总是让 <script>、<template> 和 <style> 标签的顺序保持一致。且 <style> 要放在最后，因为另外两个标签至少要有一个。
+单文件组件的顶级元素的顺序：总是让 `<script>`、`<template>` 和 `<style>` 标签的顺序保持一致。且 `<style>` 要放在最后，因为另外两个标签至少要有一个。
 4. 优先级D的规则：谨慎使用 （有潜在危险的模式）
 没有在 v-if / v-else-if / v-else 中使用 key
 元素选择器应该避免在 scoped 中出现。
@@ -1396,7 +1396,7 @@ Native开发:这个通常就是指用前端技术去开PC应用、APP应用，�
    鉴于目前Typescript如此流行，很多流行的框架和库都采用其来写，IDE友好的智能提示、强类型结束等，在立项时是否考虑采用Typescript来写Vue项目。如果采用Typescript，是不是很羡慕Angular中的DI注入，那可以考虑在大型项目中引入inversify这个库；在开发过程中遇到一些库没有声明文件要学会定义声明文件，这个是Typescript初学者最头疼的问题。
    还有一个问题是团队中有多少人会Typescript，项目周期紧不紧，有没有时间来试错，踩坑。
    2.3 Sass/Less/Stylus/PostCss ?
-   由于Vue项目开发本身样式自带scope，所以不需要像React那样去选css-in-js框架（目前在React最流行的是styled-components），但是如果我们在Vue中采用JSX的方式来定义组件，是否考虑引入vue-styled-components这个库（年久失修，完全脱节React版了，但依然是Vue中最好的选择）。在Vue中sass, less, stylus可以在<style>标签中通过lang=""来指定，如果你想使用PostCss也可以的，就是要自己花点时间去折腾一下。
+   由于Vue项目开发本身样式自带scope，所以不需要像React那样去选css-in-js框架（目前在React最流行的是styled-components），但是如果我们在Vue中采用JSX的方式来定义组件，是否考虑引入vue-styled-components这个库（年久失修，完全脱节React版了，但依然是Vue中最好的选择）。在Vue中sass, less, stylus可以在`<style>`标签中通过lang=""来指定，如果你想使用PostCss也可以的，就是要自己花点时间去折腾一下。
    2.4 关于代码规范和风格
    这个主要的选择就是Prettier 和 Airbnb风格，如果配置不好，在IDE中满屏的红色波浪线和黄色的小灯光提示。
    在配置eslint或者tslint时主要考虑的点是是否要写分号，未定义变量等问题。

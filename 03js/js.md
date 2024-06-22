@@ -2232,7 +2232,7 @@ let a = p1().then((resolve) => {
 2 注意事项
 
 - 在行内脚本中出现console.log("</script>")会导致代码提前结束。
-- <script src="example.js"/>在html中不能正常使用。在xhtml中可以。
+- `<script src="example.js"/>`在html中不能正常使用。在xhtml中可以。
 - 在标签上引用外部资源，同时也再行内书写代码，这是行内代码不会执行。
 - 为了保证加载js文件是预期的文件可以加入integrity属性。
 - 执行顺序，从上到小依次执行，如果设置了defer和async就不一定了，后一个必须等到前一个解释完成才能继续开始解释。
