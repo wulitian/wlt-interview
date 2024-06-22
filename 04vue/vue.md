@@ -291,7 +291,7 @@ export default {
 2, DOM 做递归组件时需要调用自身 name
 3, Vue-devtools 调试工具里显示的组见名称是由 Vue 中组件 name 决定的
 #### 说说你对slot的理解有多少？slot使用场景有哪些？
-v-slot属性只能在<template>上使用，但在只有默认插槽时可以在组件标签上使用
+v-slot属性只能在template上使用，但在只有默认插槽时可以在组件标签上使用
 默认插槽名为default，可以省略default直接写v-slot
 缩写为#时不能不写参数，写成#default
 可以通过解构获取v-slot={user}，还可以重命名v-slot="{user: newName}"和定义默认值v-slot="{user = '默认值'}"
@@ -589,7 +589,7 @@ Vue.component('my-component', {
 <template>
   <div>This is a component template</div>
 </template>
-```   
+```
 3. 使用渲染函数
    渲染函数是一种以JavaScript函数的形式来定义组件的模板的方式。
    渲染函数接收一个createElement函数作为参数，通过调用createElement函数来创建虚拟DOM。
@@ -847,7 +847,7 @@ watch: {
   你还可以通过全局 config.keyCodes 对象自定义按键修饰符别名：
 ```
 Vue.config.keyCodes.f1 = 112
-``` 
+```
 2. 系统修饰键
 可以用如下修饰符来实现仅在按下相应按键时才触发鼠标或键盘事件的监听器。
 - .ctrl
@@ -878,7 +878,7 @@ Vue.config.keyCodes.f1 = 112
 
 <!-- 没有任何系统修饰符被按下的时候才触发 -->
 <button v-on:click.exact="onClick">A</button>
-```   
+```
 4. 鼠标按钮修饰符
    .left
    .right
@@ -1146,7 +1146,7 @@ export default {
         this.$message.success('操作成功')
     }
 }
-```  
+```
 4. vue 组件中写全局函数
 ```
 // 创建全局方法
@@ -1830,7 +1830,7 @@ this.$router.push({
  })
 this.$route.params.id
 刷新参数丢失
-```   
+```
 3. query传参
 ```
 {
