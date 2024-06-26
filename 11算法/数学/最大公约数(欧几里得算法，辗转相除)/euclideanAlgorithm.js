@@ -21,7 +21,5 @@ function euclideanAlgorithmSubtraction(x, y) {
     // return (y === 0) ? x : euclideanAlgorithmSubtraction(y, x - y)
 }
 
-export {
-    euclideanAlgorithmRecursion,
-    euclideanAlgorithmSubtraction
-}
+console.log(euclideanAlgorithmSubtraction(18,12))
+console.log(euclideanAlgorithmRecursion(18,12))

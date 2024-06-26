@@ -49,4 +49,5 @@ function fn(str) {
     }
     return stack.length===0
 }
-console.log(fn())
+console.log(fn('(()))('))
+console.log(fn('(())'))

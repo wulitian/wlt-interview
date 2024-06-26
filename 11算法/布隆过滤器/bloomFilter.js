@@ -41,5 +41,5 @@ bloomFilter.add("apple");
 bloomFilter.add("orange");
 
 console.log(bloomFilter.contains("apple"));   // true
-console.log(bloomFilter.contains("banana"));  // false (可能误判)
-
+console.log(bloomFilter.contains("banana"));  // false
+// 如果后面再有为true的均有可能误判

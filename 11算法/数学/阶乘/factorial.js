@@ -20,7 +20,5 @@ function factorial2(number) {
     }
 }
 
-export {
-    factorial,
-    factorial2
-}
+console.log(factorial(5))
+console.log(factorial2(5))

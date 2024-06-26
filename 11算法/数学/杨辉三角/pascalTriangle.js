@@ -33,6 +33,4 @@ function pascalTriangle(m,n) {
     
 }
 
-export {
-    fn
-}
+fn(5);

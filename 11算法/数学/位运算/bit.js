@@ -52,7 +52,7 @@ function isEven(number) {
 }
 
 /**
- * 32为浮点数第一位是符号位0代表整数1代表负数
+ * 32位浮点数第一位是符号位0代表整数1代表负数
  * @param number
  * @returns {boolean}
  */
@@ -89,15 +89,14 @@ function divideByTwo(number){
 function switchSign(number){
     return ~number + 1;
 }
-
-export {
-    getBit,
-    setBit,
-    clearBit,
-    updateBit,
-    isEven,
-    isPositive,
-    mutiplyByTwo,
-    divideByTwo,
-    switchSign
-}
+let x = 2
+console.log(x.toString(2))
+console.log(getBit(2, 1));
+console.log(setBit(2, 0));
+console.log(clearBit(2, 1));
+console.log(updateBit(2, 1,1));
+console.log(isEven(2));
+console.log(isPositive(-100));
+console.log(mutiplyByTwo(100));
+console.log(divideByTwo(100));
+console.log(switchSign(-100));

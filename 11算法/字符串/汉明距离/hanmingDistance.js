@@ -12,6 +12,4 @@ function hanmingDistance(str,str2) {
     return distance;
 }
 
-export {
-    hanmingDistance
-}
+console.log(hanmingDistance('123123','123456'));
