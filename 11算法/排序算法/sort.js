@@ -38,6 +38,35 @@ function selectionSort(arr) {
     return arr;
 }
 /**
+ * 希尔排序
+ * @param {*} arr
+ * @returns
+ */
+function shellSort(arr) {
+    if (arr.length === 0) {
+        return arr;
+    }
+    let len = arr.length,
+        temp,
+        gap = 1;
+    while (gap < len / 3) {
+        gap = gap * 3 + 1;
+    }
+    for (gap; gap > 0; gap = Math.floor(gap / 3)) {
+        for (let i = gap; i < len; i++) {
+            temp = arr[i];
+            let j = i - gap;
+            while (j >= 0 && arr[j] > temp) {
+                arr[j + gap] = arr[j];
+                j -= gap;
+            }
+            arr[j + gap] = temp;
+            console.log('arr  :', arr);
+        }
+    }
+    return arr;
+};
+/**
  * 插入排序
  * @param {*} arr 
  * @returns 
@@ -108,35 +137,6 @@ function quickSort(arr) {
     }
     return [...quickSort(leftArr), ...midVal, ...quickSort(rightArr)]
 }
-/**
- * 希尔排序
- * @param {*} arr 
- * @returns 
- */
-function shellSort(arr) {
-    if (arr.length === 0) {
-        return arr;
-    }
-    let len = arr.length,
-        temp,
-        gap = 1;
-    while (gap < len / 3) {
-        gap = gap * 3 + 1;
-    }
-    for (gap; gap > 0; gap = Math.floor(gap / 3)) {
-        for (let i = gap; i < len; i++) {
-            temp = arr[i];
-            let j = i - gap;
-            while (j >= 0 && arr[j] > temp) {
-                arr[j + gap] = arr[j];
-                j -= gap;
-            }
-            arr[j + gap] = temp;
-            console.log('arr  :', arr);
-        }
-    }
-    return arr;
-};
 /**
  * 计数排序
  * @param {*} arr 
