@@ -1,8 +1,34 @@
 /**
  * 适配器设计模式
  */
-
 // 写法一
+!(function () {
+    const googleMap = {
+        display: function () {
+            console.log("googleMap")
+        }
+    }
+
+    const baiduMap = {
+        show: function () {
+            console.log("baiduMap")
+        }
+    }
+
+    const baiduMapAdapter = {
+        display: function () {
+            baiduMap.show()
+        }
+    }
+
+    function renderMap(map){
+        return map.display();
+    }
+    renderMap(googleMap);
+    renderMap(baiduMapAdapter);
+})()
+
+// 写法二
 !(function () {
     /* 因为es6语法在浏览器中不支持此处需要babel，不在展示，直接看代码，也可以去继承成关键字   */
 
@@ -32,33 +58,6 @@
     }
 
     new adapter().display();
-})()
-
-// 写法二
-!(function () {
-    const googleMap = {
-        display: function () {
-            console.log("googleMap")
-        }
-    }
-
-    const baiduMap = {
-        show: function () {
-            console.log("baiduMap")
-        }
-    }
-
-    const baiduMapAdapter = {
-        display: function () {
-            baiduMap.show()
-        }
-    }
-
-    function renderMap(map){
-        return map.display();
-    }
-    renderMap(googleMap);
-    renderMap(baiduMapAdapter);
 })()
 
 // 参数适配
