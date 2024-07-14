@@ -11,9 +11,11 @@
             this.observers.push(observer)
         }
 
-        notify() {
+        notify(res) {
             for (let observer of this.observers) {
-                observer.update();
+                if(observer === res) {
+                    observer.update();
+                }
             }
         }
     }
@@ -33,6 +35,7 @@
     let subject = new Subject();
     subject.add(observer1);
     subject.add(observer2);
+    subject.notify(observer1);
     subject.notify(observer1);
     subject.notify(observer2);
 })()

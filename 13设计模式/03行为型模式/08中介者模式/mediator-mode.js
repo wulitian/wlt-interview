@@ -6,25 +6,11 @@ class A {
     constructor() {
         this.number = 0;
     }
-
-    setNumber(num, m) {
-        this.number = num;
-        if (m) {
-            m.setB();
-        }
-    }
 }
 
 class B {
     constructor() {
         this.number = 0;
-    }
-
-    setNumber(num, m) {
-        this.number = num;
-        if (m) {
-            m.setA();
-        }
     }
 }
 
@@ -34,14 +20,13 @@ class Mediator {
         this.b = b;
     }
 
-    setA() {
-        let number = this.b.number;
-        this.a.setNumber(number+100);
-    }
-
-    setB() {
-        let number = this.a.number;
-        this.b.setNumber(number-100);
+    setVal(val) {
+        if (val === 'a') {
+            this.a.number = 100;
+        }
+        if (val === 'b') {
+            this.b.number = 200;
+        }
     }
 }
 
@@ -50,7 +35,7 @@ class Mediator {
 let a = new A();
 let b = new B();
 let m = new Mediator(a, b);
-a.setNumber(100, m);
-console.log(a.number, b.number);
-b.setNumber(100, m);
-console.log(a.number, b.number);
+m.setVal('a');
+console.log(a);
+m.setVal('b');
+console.log(b);

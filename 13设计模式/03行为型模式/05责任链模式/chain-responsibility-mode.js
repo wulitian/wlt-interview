@@ -42,7 +42,8 @@
         }
         return returnMsg;
     }
-    function Client(){
+
+    function Client() {
         let user1 = new Handle(User1);
         let user2 = new Handle(User2);
         let user3 = new Handle(User3);
@@ -61,66 +62,70 @@
 })()
 
 !(function () {
+    class User1 {
+        approval(type, pass) {
+            if (type === "a" && pass) {
+                console.log('用户1审批通过');
+            } else {
+                console.log('用户1未审批')
+                return 'next'
+            }
+        }
+    }
+
+    class User2 {
+        approval(type, pass) {
+            if (type === "b" && pass) {
+                console.log('用户2审批通过');
+            } else {
+                console.log('用户2未审批')
+                return 'next'
+            }
+        }
+    }
+
+    class User3 {
+        approval(type, pass) {
+            if (type === "c" && pass) {
+                console.log('用户3审批通过');
+            } else {
+                console.log('用户3未审批');
+                console.log('没有用户审批通过请假失败');
+            }
+        }
+    }
+
     class Handle {
-        constructor() {
-            this.name = "";
-            this.nextUser = null;
+        constructor(fn) {
+            this.fn = fn;
+            this.receiver = null;
         }
 
-        setUser(nextUser) {
-            this.nextUser = nextUser;
+        setReceiver(receiver) {
+            this.receiver = receiver;
         }
 
-        approval(name, message) {
-            if (this.name !== "") {
-                console.log(name)
-                this.name = name;
+        passRequest(a, b) {
+            let returnMsg = this.fn.approval(a, b);
+            if (returnMsg === 'next') {
+                return this.receiver && this.receiver.passRequest(a, b);
             }
-            if (this.nextUser != null) {
-                this.nextUser.approval(name, message);
-            }
+            return returnMsg;
         }
     }
 
-    class ConcreteHandlerUser1 extends Handle {
-        constructor(name) {
-            super();
-            this.name = name;
-        }
-
-        approval(message) {
-            console.log(message);
-        }
-    }
-
-    class ConcreteHandlerUser2 extends Handle {
-        constructor(name) {
-            super();
-            this.name = name;
-        }
-
-        approval(message) {
-            console.log(message);
-        }
-    }
-
-    class Client {
-        constructor() {
-
-        }
-
-        getChain() {
-            const concreteHandlerUser1 = new ConcreteHandlerUser1("a");
-            const concreteHandlerUser2 = new ConcreteHandlerUser2("b");
-            concreteHandlerUser1.setUser(concreteHandlerUser2)
-            return concreteHandlerUser1;
-        }
-    }
-
-    let client = new Client();
-    client.getChain().approval("a");
-    client.getChain().approval("b");
-    client.getChain().approval("c");
+    let u1 = new User1();
+    let u2 = new User2();
+    let u3 = new User3();
+    let user1 = new Handle(u1);
+    let user2 = new Handle(u2);
+    let user3 = new Handle(u3);
+    user1.setReceiver(user2);
+    user2.setReceiver(user3);
+    user1.passRequest('a', true);
+    user1.passRequest('d', false);
+    user1.passRequest('c', true);
+    user1.passRequest('d', false);
 })()
 
 

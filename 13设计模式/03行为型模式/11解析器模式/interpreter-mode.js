@@ -3,52 +3,36 @@
  */
 !(function () {
     class Context {
-        constructor() {
-            this._list = []; // 存放 终结符表达式
-            this._sum = 0; // 存放 非终结符表达式(运算结果)
-        }
-
-        get sum() {
-            return this._sum;
-        }
-        set sum(newValue) {
-            this._sum = newValue;
-        }
-        add(expression) {
-            this._list.push(expression);
-        }
-        get list() {
-            return [...this._list];
+        interpret(context) {
+            return context
         }
     }
 
     class PlusExpression {
-        interpret(context) {
-            if (!(context instanceof Context)) {
-                throw new Error("TypeError");
-            }
-            context.sum = ++context.sum;
+        constructor(expr1, expr2) {
+            this.expr1 = expr1;
+            this.expr2 = expr2;
+        }
+        interpret(a,b) {
+            return this.expr1.interpret(a) + this.expr2.interpret(b);
         }
     }
 
     class MinusExpression {
-        interpret(context) {
-            if (!(context instanceof Context)) {
-                throw new Error("TypeError");
-            }
-            context.sum = --context.sum;
+        constructor(expr1, expr2) {
+            this.expr1 = expr1;
+            this.expr2 = expr2;
+        }
+        interpret(a,b) {
+            return this.expr1.interpret(a) - this.expr2.interpret(b);
         }
     }
 
     /** 以下是测试代码 **/
     const context = new Context();
-
-    // 依次添加: 加法 | 加法 | 减法 表达式
-    context.add(new PlusExpression());
-    context.add(new PlusExpression());
-    context.add(new MinusExpression());
-
-    // 依次执行: 加法 | 加法 | 减法 表达式
-    context.list.forEach(expression => expression.interpret(context));
-    console.log(context.sum);
+    const context2 = new Context();
+    const minusExpression = new MinusExpression(context, context2)
+    const plusExpression = new PlusExpression(context, context2)
+    console.log(minusExpression.interpret(2,1))
+    console.log(plusExpression.interpret(2,1))
 })()
