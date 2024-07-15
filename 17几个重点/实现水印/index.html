@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>wulitian</title>
+    <style>
+        .box {
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            font-size: 20px;
+            font-weight: 700;
+            display: flex;
+            flex-wrap: wrap;
+            overflow: hidden;
+            user-select: none;
+            pointer-events: none;
+            opacity: 0.1;
+            z-index: 999;
+        }
+        .watermark {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<div>
+    <h2>张三李四王二麻子</h2>
+    <br />
+    <h2>张三李四王二麻子</h2>
+    <br />
+    <h2>张三李四王二麻子</h2>
+    <br />
+</div>
+<div class="box">
+</div>
+<script>
+    function addWaterMark(width, height, content) {
+        let box = document.querySelector(".box");
+        let boxWidth = box.clientWidth,
+            boxHeight = box.clientHeight;
+        for (let i = 0; i < Math.floor(boxHeight / height); i++) {
+            for (let j = 0; j < Math.floor(boxWidth / width); j++) {
+                let next = document.createElement("div")
+                next.setAttribute("class", "watermark")
+                next.style.width = width + 'px'
+                next.style.height = height + 'px'
+                next.innerText = content
+                box.appendChild(next)
+            }
+        }
+    }
+    window.onload = ()=>{
+        addWaterMark(200, 100, '水印')
+    }
+</script>
+</body>
+</html>
