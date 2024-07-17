@@ -61,9 +61,8 @@ beforeCreate, created, beforeMount, mounted
 不可以,因为不管是computed还是data都会挂载到vm实例上,如果同名的话,根据js编译代码从上往下执行的机制,前面的属性就会被后面定义的属性覆盖
 props,methods,data,computed,watch这些都不可以同名
 #### vue的属性名称与method的方法名称一样时会发生什么问题？
-vue会把methods和data的东西，全部代理到vue生成对象中。
-会产生覆盖所以最好不要同名
-键名优先级：props > data > methods
+**属性覆盖方法**：Vue 实例化时会先注册 `data` 和 `computed`，再注册 `methods`。如果名称冲突，`data` 或 `computed` 中的属性会覆盖同名的方法，导致方法丢失或不可调用。
+**逻辑错误**：如果不小心将方法名称和属性名称设置为相同，可能会导致意外的逻辑错误，因为开发者期望调用方法时，实际上是在访问属性或者触发了属性的 setter。
 #### vue中怎么重置data？
 Object.assign(this.$data,this.$options.data())
 #### vue渲染模板时怎么保留模板中的HTML注释呢？
@@ -336,19 +335,27 @@ v-pre可以用来阻止预编译，有v-pre指令的标签内部的内容不会�
 3. sync修饰符
 4. vue3.0取消了sync修饰符换做v-model:title 语法代替
 #### 说说你对vue的template编译的理解？
-1. 将模板字符串解析成 AST（抽象语法树）
-2. Vue 的编译器会遍历 AST，然后根据节点类型、属性、文本等信息，生成一个 JavaScript 函数，这个函数就是我们常说的“渲染函数”。
-   渲染函数是一个接受一个参数的函数，这个参数就是 Vue 实例，它返回一个 VNode（虚拟节点）。在 Vue 中，VNode 用于描述真实 DOM 树中的节点
-   其中，tag 表示节点的标签名；data 表示节点的属性和事件等信息；children 表示子节点；text 表示文本内容；elm 表示真实 DOM 节点；ns 表示节点的命名空间；context 表示渲染上下文；key 表示节点的唯一标识符。
-3. 将 VNode 渲染成真实 DOM。
-4. 最后会将渲染出来的组件挂载到实例上。
-   render 函数和 h 函数
-   h 函数用于创建 VNode，它接受三个参数：
-   tag 表示节点的标签名、组件选项对象或者异步组件的工厂函数；
-   data 表示节点的属性和事件和子节点等信息；
-   children 表示子节点数组。
-   render 函数则是一个更加底层的函数，它接受一个 createElement 函数作为参数，这个函数可以用来创建 VNode
-   vue2.0中使用template实际上也是会先编译成render函数的
+1. 模板编译过程
+   在 Vue 的编译过程中，主要涉及以下几个步骤：
+   1.1 解析模板
+   Vue 的模板编译器会读取 `.vue` 文件中的 `<template>` 部分，并进行解析。这个过程将模板中的语法（如指令、插值表达式等）转换为抽象语法树（AST）。
+   - **指令解析**：将 `v-bind`, `v-for`, `v-if` 等指令解析成对应的 JavaScript 表达式或对象。
+   - **插值表达式**：将 `{{ message }}` 解析为 JavaScript 表达式。
+     1.2 生成渲染函数
+     解析后的 AST 被转换为渲染函数。渲染函数是一个 JavaScript 函数，接受 `createElement` 方法作为参数，用于创建虚拟 DOM 元素。
+   - **虚拟 DOM 创建**：`render` 函数会调用 `createElement` 来生成虚拟 DOM 树。
+   - **数据绑定**：在渲染函数中，模板中的数据绑定和指令逻辑会被编译成对应的 JavaScript 代码。
+     1.3 优化和代码生成
+     在生成渲染函数之后，Vue 还会进行一些优化处理，如静态节点的提升、事件处理的优化等。这些优化可以提高渲染性能。
+2. 模板语法支持
+   Vue 的模板编译器支持多种语法，包括：
+   - **插值表达式**：`{{ message }}`
+   - **指令**：`v-bind`, `v-for`, `v-if`, `v-else`, `v-show`, `v-on` 等。
+   - **组件**：自定义组件的使用 `<my-component></my-component>`.
+   - **条件渲染**：`v-if`, `v-else-if`, `v-else`.
+   - **列表渲染**：`v-for`，结合 `key` 提供唯一标识。
+   - **事件处理**：`v-on`，监听 DOM 事件。
+   - **计算属性和监听器**：`v-model`, `v-bind`, `v-on`.
 #### v-on可以绑定多个方法吗？
 ```
 <button v-on="{'contextmenu':box,'click':click}">按钮</button>
@@ -364,6 +371,54 @@ watcher中会有dep依赖收集如果你连续操作同一个key会进行依赖�
 ref
 #### v-model是什么？有什么用呢？
 v-model 指令的实现原理是基于计算属性和事件绑定。它会将表单元素的 value 属性绑定到一个计算属性上，并且在计算属性的 setter 中触发 input 事件来更新 Vue 实例中的数据
+`v-model` 是 Vue.js 提供的一个指令，用于在表单控件元素（如 `<input>`, `<textarea>`, `<select>` 等）和 Vue 实例的数据之间建立双向数据绑定。
+1. 基本用法
+   在 Vue 组件中，通过 `v-model` 指令可以轻松实现表单控件和数据之间的双向绑定。
+```
+<template>
+  <div>
+    <input type="text" v-model="message">
+    <p>{{ message }}</p>
+  </div>
+</template>
+
+<script>
+export default {
+  data() {
+    return {
+      message: ''
+    };
+  }
+};
+</script>
+```
+在上面的例子中，`<input>` 元素使用了 `v-model="message"`，这表示 `<input>` 的值会自动同步到 Vue 实例的 `message` 数据属性上，同时，当 `message` 数据属性发生变化时，`<input>` 元素的值也会自动更新。
+2. 用途
+- **表单输入处理**：`v-model` 是处理表单输入的便捷方式，使得在表单控件和 Vue 实例数据之间建立双向绑定变得非常简单和直观。
+- **组件通信**：在自定义组件中，可以使用 `v-model` 实现父子组件之间的双向数据传递。这需要在组件内部通过 `model` 选项来指定属性和事件。
+- **简化模板代码**：使用 `v-model` 可以大幅减少编写模板代码的工作量，特别是在处理表单和用户输入时，可以显著提高开发效率。
+3. 修饰符
+   `v-model` 还支持一些修饰符，用于特定的输入类型或行为：
+- `.lazy`：在 `input` 事件之后更新数据，而不是每次 `change` 事件。
+- `.number`：将输入值转为数值类型。
+- `.trim`：自动去除输入的首尾空白字符。
+4. 自定义组件中的 `v-model`
+   在自定义组件中，可以通过 `model` 选项来指定组件的属性和事件，以实现 `v-model` 的双向绑定功能。
+```
+<template>
+  <div>
+    <input :value="value" @input="$emit('input', $event.target.value)">
+  </div>
+</template>
+
+<script>
+export default {
+  props: ['value'], // 接收父组件传入的值
+};
+</script>
+```
+在上述例子中，通过 `:value="value"` 绑定输入框的值，并通过 `@input="$emit('input', $event.target.value)"` 发送 `input` 事件来更新父组件的数据。
+在 Vue 3 中，推荐使用 modelValue 和 update:modelValue 来实现自定义组件中的 v-model 功能。这是因为 Vue 3 中约定了使用 modelValue 作为默认的 v-model prop 名称，而 update:modelValue 则用于触发更新。
 #### vue的响应式原理
 1. 监听器observer 通过object.defineProperty实现数据响应式，通过get,set实现数据响应式，判断data中的数据类型如果是对象
 2. 触发get时会进行依赖收集会将当前的watcher收集到dep中 
@@ -410,9 +465,93 @@ axios是用于网络请求的第三方库，它是一个库。xhr+http
 等待下一次事件循环到了微任务或者宏任务，执行函数依次执行flushCallbacks中的回调。
 而在Vue3当中，nextTick则是利用promise的链式调用，将用户放入的回调放在更新视图之后的then里面调用，用户调用多少次nextTick，就接着多少个then。
 #### vue过渡动画实现的方式有哪些？
-1.使用vue的transition标签结合css样式完成动画
-2.利用animate.css结合transition实现动画
-3.利用 vue中的钩子函数实现动画
+在 Vue 中实现过渡动画有多种方式，可以根据具体场景和需求选择合适的方法。以下是常见的几种实现方式：
+1. 使用 `<transition>` 组件
+   Vue 提供了 `<transition>` 组件，可以包裹任意元素或组件，使其在进入和离开 DOM 时进行过渡动画。
+```
+<template>
+  <div>
+    <transition name="fade">
+      <p v-if="show">Hello, Vue!</p>
+    </transition>
+    <button @click="toggleShow">Toggle Show</button>
+  </div>
+</template>
+
+<script>
+export default {
+  data() {
+    return {
+      show: false
+    };
+  },
+  methods: {
+    toggleShow() {
+      this.show = !this.show;
+    }
+  }
+};
+</script>
+
+<style>
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.5s;
+}
+.fade-enter, .fade-leave-to {
+  opacity: 0;
+}
+</style>
+```
+在上述例子中，`<transition name="fade">` 包裹了一个 `<p>` 元素，通过 `v-if` 控制其显示和隐藏。同时，CSS 中定义了 `.fade-enter-active`, `.fade-leave-active`, `.fade-enter`, `.fade-leave-to` 来实现淡入淡出的过渡效果。
+2. 使用 `<transition-group>` 组件
+   如果需要对列表进行过渡动画，可以使用 `<transition-group>` 组件，它能够自动处理列表中元素的插入和删除过渡效果。
+```
+<template>
+  <div>
+    <transition-group name="list" tag="ul">
+      <li v-for="item in items" :key="item.id">{{ item.text }}</li>
+    </transition-group>
+    <button @click="addItem">Add Item</button>
+    <button @click="removeItem">Remove Item</button>
+  </div>
+</template>
+
+<script>
+export default {
+  data() {
+    return {
+      items: [
+        { id: 1, text: 'Item 1' },
+        { id: 2, text: 'Item 2' },
+        { id: 3, text: 'Item 3' }
+      ]
+    };
+  },
+  methods: {
+    addItem() {
+      this.items.push({ id: Date.now(), text: `Item ${this.items.length + 1}` });
+    },
+    removeItem() {
+      this.items.pop();
+    }
+  }
+};
+</script>
+
+<style>
+.list-enter-active, .list-leave-active {
+  transition: transform 0.5s;
+}
+.list-enter, .list-leave-to {
+  transform: translateY(30px);
+  opacity: 0;
+}
+</style>
+```
+在上述例子中，`<transition-group name="list" tag="ul">` 包裹了一个 `<ul>` 元素，通过 `v-for` 渲染列表项，并定义了 `.list-enter-active`, `.list-leave-active`, `.list-enter`, `.list-leave-to` 来实现列表项插入和删除时的过渡效果。
+3. 使用第三方动画库
+   除了以上 Vue 提供的过渡方式，还可以结合第三方动画库（如 `Animate.css`、`Velocity.js` 等）来实现更复杂和炫酷的过渡效果。通常需要在组件中引入第三方库，并在适当的时机触发动画效果。
+   总结来说，Vue 提供了丰富的过渡动画实现方式，开发者可以根据具体的需求和场景选择合适的方式来实现动画效果，从简单的淡入淡出到复杂的列表过渡，都能够通过 Vue 提供的 API 和 CSS 过渡效果来轻松实现。
 #### 如何实现一个虚拟DOM？说说你的思路
 1. 什么事虚拟dom?
 虚拟dom vue框架与react框架都使用的虚拟dom,可以跨平台，实际上就是对真是dom的抽象，以javascript对象作为基础的树，用对象属性描述节点，通过一系列的操作使这个树
@@ -961,7 +1100,7 @@ inserted：在被绑定元素插入到父节点时调用。
 update：在组件更新时调用，可能会触发多次。
 componentUpdated：在组件及其子组件更新完成后调用。
 unbind：在指令从元素上解绑时调用。
-#### 你有使用做过vue与原生app交互吗？说说vue与ap交互的方法
+#### 你有使用做过vue与原生app交互吗？说说vue与app交互的方法
 我的做法就是让app在webview把app的方法暴露在window上让前端调用、反之app调用前端的方法也需要前端把方法暴露在window上(window.xxx = 方法或值 ),
 页面销毁的时候移除方法(delete window.xxx)
 #### 使用vue写一个tab切换
@@ -1520,9 +1659,7 @@ VUE首页加载过慢，其原因是它是一个单页应用，需要将所有�
 测试和验证： 在部署到线上环境之前，进行充分的测试和验证。确保应用在线上环境中正常运行，并解决可能出现的问题。
 备份项目： 在部署之前，备份项目的源代码和相关资源。这样可以在出现问题时快速恢复
 #### 你了解什么是函数式组件吗？
-函数式组件：
-需要提供一个render方法， 接受一个参数（createElement函数）， 方法内根据业务逻辑，通过createElement创建vnodes，最后return vnodes
-createElement函数， 三个参数， 第一个参数是html标签或自定义组件，第二个参数一个obj（包含props， on...等等）， 第三个参数children(通过createElement构建， 或者字符串)
+函数式组件在Vue.js中是无状态、无实例的轻量级组件，主要用于简单的展示逻辑。它们通过接收`props`来渲染UI，不保留内部状态，也没有生命周期方法，因此性能较高，适合用于纯展示目的。在Vue 2中，通过设置`functional: true`定义；在Vue 3中，直接用一个函数返回虚拟DOM节点即可。优点是性能好、代码简洁，但缺点是功能有限，不能管理状态和使用生命周期钩子。适合用于无需复杂交互的场景
 #### 说说你对vue的mixin的理解，有什么应用场景？
 Mixin是面向对象程序设计语言中的类，提供了方法的实现。其他类可以访问mixin类的方法而不必成为其子类
 Mixin类通常作为功能模块使用，在需要该功能时“混入”，有利于代码复用又避免了多继承的复杂
@@ -1572,7 +1709,20 @@ new Vue({
 }).$mount("#app");
 ```
 #### 说说你对keep-alive的理解是什么？
-
+工作原理
+`<keep-alive>` 组件通过缓存不活动的组件实例来保留其状态，而不是销毁和重新创建它们。当组件被包裹在 `<keep-alive>` 中时，它在切换出去时不会被销毁，再次切换回来时会被重新激活。
+在这个例子中，`<keep-alive>` 包裹了动态组件 component，当切换 currentView 的值时，ComponentA 和 ComponentB 会被缓存，而不是被销毁和重新创建。
+参数和钩子函数 可以通过 include 和 exclude 属性来控制哪些组件需要被缓存，哪些不需要。
+include: 一个字符串、正则表达式或数组，只有匹配的组件会被缓存。
+exclude: 一个字符串、正则表达式或数组，匹配的组件不会被缓存。
+max 属性用来指定缓存组件实例的最大数量。超过这个数量时，已缓存组件中最久没有被访问的实例会被销毁。
+实际应用场景
+路由缓存：在使用 Vue Router 时，可以结合 `<keep-alive>` 实现路由组件的缓存，避免频繁切换页面时组件状态丢失。
+表单数据缓存：对于复杂的表单页面，用户可能需要在不同表单之间切换，这时可以使用 `<keep-alive>` 缓存表单状态，避免用户已经填写的数据丢失。
+提高性能：在列表切换、Tab 切换等场景中，通过缓存组件状态，避免每次切换都重新渲染，提升用户体验。
+注意事项
+数据持久化：`<keep-alive>` 只是暂时缓存组件实例，当应用刷新或组件被移除时，缓存数据仍会丢失。因此，对于重要数据，仍需考虑数据持久化方案。
+内存管理：使用 `<keep-alive>` 缓存组件实例时，要注意内存管理问题，特别是在有大量动态组件时，需要合理设置 max 属性，以避免内存占用过多。
 ### ---------axios---------
 #### 你了解axios的原理吗？有看过它的源码吗？
 #### 为何官方推荐使用axios而不用vue-resource？
@@ -1720,21 +1870,80 @@ vue init webpack my-project
 
 ### ---------vue-router---------
 #### vue-router怎么重定向页面？
-1. 重定向也是通过 routes 配置来完成，下面例子是从 /home 重定向到 /：
-const routes = [{ path: '/home', redirect: '/' }]
-2. 重定向的目标也可以是一个命名的路由：
-const routes = [{ path: '/home', redirect: { name: 'homepage' } }]
-3. 甚至是一个方法，动态返回重定向目标：
+1. 使用路由配置中的 `redirect` 选项
+   在定义路由时，可以使用 `redirect` 选项将一个路径重定向到另一个路径。
+```
 const routes = [
-   {
-      // /search/screens -> /search?q=screens
-      path: '/search/:searchText',
-      redirect: to => {
-      // 方法接收目标路由作为参数
-      // return 重定向的字符串路径/路径对象
-      return { path: '/search', query: { q: to.params.searchText } }
-   },
-]
+  { path: '/', redirect: '/home' },   // 重定向根路径到/home
+  { path: '/home', component: Home },
+  { path: '/about', component: About }
+];
+
+const router = new VueRouter({
+  routes
+});
+```
+在这个例子中，访问根路径 `'/'` 会被重定向到 `/home`。
+2. 动态重定向
+   你可以根据某些条件动态地设置重定向目标。
+```
+const routes = [
+  {
+    path: '/login',
+    component: Login,
+    redirect: to => {
+      const { query } = to;
+      if (query.redirect) {
+        return query.redirect;
+      } else {
+        return '/home';
+      }
+    }
+  },
+  { path: '/home', component: Home },
+  { path: '/about', component: About }
+];
+const router = new VueRouter({
+  routes
+});
+```
+在这个例子中，访问 `/login` 会根据查询参数动态地重定向到相应路径。
+3. 编程式导航
+   在组件内，你可以使用 `$router.push` 或 `$router.replace` 方法进行重定向。
+```
+methods: {
+  redirectToHome() {
+    this.$router.push('/home'); // 使用push方法重定向
+  },
+  replaceToAbout() {
+    this.$router.replace('/about'); // 使用replace方法重定向，不会留下浏览历史记录
+  }
+}
+```
+4. 使用导航守卫进行重定向
+   可以在导航守卫中使用 `next` 函数重定向到不同的路径。
+```
+const router = new VueRouter({
+  routes: [
+    { path: '/home', component: Home },
+    { path: '/about', component: About },
+    { path: '/login', component: Login }
+  ]
+});
+router.beforeEach((to, from, next) => {
+  if (to.path === '/login' && isAuthenticated()) {
+    next('/home'); // 如果已登录且访问登录页，则重定向到/home
+  } else {
+    next();
+  }
+});
+```
+在这个例子中，如果用户已登录且试图访问登录页面，则会重定向到首页。
+总结
+- **路由配置中的 redirect 选项**：适用于静态重定向。
+- **动态重定向**：根据条件动态决定重定向目标。
+- **编程式导航**：在组件逻辑中使用 `$router.push` 或 `$router.replace` 进行重定向。
+- **导航守卫**：在路由守卫中使用 `next` 函数进行重定向。
 #### vue-router怎么配置404页面？
 ```
 {
@@ -1755,17 +1964,63 @@ beforeRouteLeave (to, from, next) {
 }
 ```
 #### vue-router路由有几种模式？说说它们的区别？
-hash模式
-1、url路径会出现 # 字符
-2、hash值不包括在 HTTP 请求中，它是交由前端路由处理，所以改变hash值时不会刷新页面，也不会向服务器发送请求
-3、hash值的改变会触发hashchange事件
-history模式
-1、整个地址重新加载，可以保存历史记录，方便前进后退
-2、使用 HTML5 API（旧浏览器不支持）和 HTTP服务端配置，没有后台配置的话，页面刷新时会出现404
+Vue Router 提供了两种主要的路由模式：`hash` 模式和 `history` 模式。每种模式都有其特点和适用场景。
+Hash 模式
+- 使用 URL 的 hash (`#`) 部分来保持路由状态。
+- 依赖于浏览器的 `hashchange` 事件。
+```
+const router = new VueRouter({
+  mode: 'hash',
+  routes: [
+    { path: '/home', component: Home },
+    { path: '/about', component: About }
+  ]
+});
+```
+```
+http://example.com/#/home
+```
+优点
+- 简单易用，兼容性好，适用于所有支持 `hashchange` 事件的浏览器。
+- 无需服务器配置即可工作，因为 hash 部分不会被发送到服务器。
+  缺点
+- URL 中有一个 `#` 符号，看起来不太美观。
+- 不能完全利用浏览器提供的历史记录功能。
+  History 模式
+- 使用 HTML5 History API (`pushState` 和 `replaceState`) 来实现路由。
+- URL 看起来更自然，没有 `#` 符号。
+
+```
+const router = new VueRouter({
+  mode: 'history',
+  routes: [
+    { path: '/home', component: Home },
+    { path: '/about', component: About }
+  ]
+});
+```
+```
+http://example.com/home
+```
+优点
+- URL 更加美观，与普通 URL 没有区别。
+- 可以完全利用浏览器的历史记录功能，如前进、后退操作。
+  缺点
+- 需要服务器配置支持。可能会返回 404 错误。
+   - 示例 Nginx 配置：
+     ```
+     location / {
+       try_files $uri $uri/ /index.html;
+     }
+     ```
+选择哪种模式？
+- **Hash 模式**：如果你不想配置服务器或需要兼容旧版浏览器，hash 模式是更好的选择。
+- **History 模式**：如果你需要更美观的 URL 并且可以控制服务器配置，那么 history 模式是更好的选择。
+  根据应用的需求和服务器配置的能力选择合适的路由模式。
 #### vue-router有哪几种导航钩子（ 导航守卫 ）？
-beforeRouteEnter 在进入当前组件对应的路由前调用
-beforeRouteUpdate 在当前路由改变，但是该组件被复用时调用
-beforeRouteLeave 在离开当前组件对应的路由前调用
+全局守卫：`beforeEach`、`beforeResolve`、`afterEach`。适用于需要在整个应用范围内处理逻辑的情况。
+路由独享守卫：`beforeEnter`。适用于需要在特定路由进入之前处理逻辑的情况。
+组件内守卫：`beforeRouteEnter`、`beforeRouteUpdate`、`beforeRouteLeave`。适用于需要在组件层级处理逻辑的情况。
 #### 说说你对router-link的了解
 vue-router插件的其中一个组件, 用于跳转路由, 类似于a标签, 它一般也会渲染成a标签, 但是可以通过tag来变更默认渲染元素, 通过to来跳转
 #### vue-router如何响应路由参数的变化？
@@ -1786,6 +2041,11 @@ const router = new VueRouter({
   routes: [...],
   scrollBehavior (to, from, savedPosition) {
     // return 期望滚动到哪个的位置
+    if (savedPosition) {
+      return savedPosition;
+    } else {
+      return { x: 0, y: 0 };
+    }
   }
 })
 ```
@@ -1800,7 +2060,10 @@ const router = new VueRouter({
   }
 ```
 #### 在什么场景下会用到嵌套路由？
-嵌套结构较多时需要用到嵌套路由
+多级导航结构：适用于后台管理系统或多层级页面结构。
+详情页面：适用于列表和详情页面之间的导航。
+多重布局：适用于不同页面需要不同布局的情况。
+复用组件：适用于多个路由共享公共组件或逻辑的情况。
 #### 如何获取路由传过来的参数？
 1. 路由地址传参
 ```
@@ -1852,35 +2115,73 @@ active-class是 vue-router模块中router-link 组件中的属性，主要作用
 #### 在vue组件中怎么获取到当前的路由信息？
 this.$route可以获取，例如：this.$route.path
 #### 怎么实现路由懒加载呢？
+1. 使用动态导入语法
+   你可以使用 JavaScript 的 `import()` 语法来动态导入组件。这种方式会自动将每个组件打包成单独的文件，只有在访问相应路由时才会加载。
 ```
-const UserDetails = () =>
- import(/* webpackChunkName: "group-user" */ './UserDetails.vue')
-const UserDashboard = () =>
- import(/* webpackChunkName: "group-user" */ './UserDashboard.vue')
-const UserProfileEdit = () =>
- import(/* webpackChunkName: "group-user" */ './UserProfileEdit.vue')
-const router = new Router({
-   routes: [
-      {
-         path: '/list',
-         component: (resolve) => {
-            // 这里是你的模块 不用import去引入了
-            require(['@/components/list'], resolve)
-         }
-      }
-   ]
-})
-const List = resolve => require.ensure([], () => resolve(require('@/components/list')),'list');
-// 路由也是正常的写法  这种是官方推荐的写的 按模块划分懒加载 
-const router = new Router({
-   routes: [
-      {
-         path: '/list',
-         component: List,
-         name: 'list'
-      }
-   ]
-}))
+const router = new VueRouter({
+  routes: [
+    {
+      path: '/home',
+      component: () => import('./components/Home.vue')
+    },
+    {
+      path: '/about',
+      component: () => import('./components/About.vue')
+    }
+  ]
+});
+```
+在这个例子中，`Home.vue` 和 `About.vue` 组件会被单独打包，并且只有在访问对应路径时才会加载。
+命名 chunk
+为了更好地管理懒加载的文件，可以使用注释为懒加载的 chunk 命名。这样做的好处是可以在网络面板中看到更友好的文件名。
+```
+const router = new VueRouter({
+  routes: [
+    {
+      path: '/home',
+      component: () => import(/* webpackChunkName: "home" */ './components/Home.vue')
+    },
+    {
+      path: '/about',
+      component: () => import(/* webpackChunkName: "about" */ './components/About.vue')
+    }
+  ]
+});
+```
+在这个例子中，`Home.vue` 和 `About.vue` 会被打包成 `home.js` 和 `about.js`。
+3. 配置 Webpack（可选）
+   在大多数情况下，Vue CLI 已经为你配置好了 Webpack 以支持懒加载。如果你使用的是自定义的 Webpack 配置，需要确保 Babel 和 Webpack 的相关设置支持动态导入。
+4. 处理加载状态（可选）
+   在实际应用中，可能需要在懒加载组件的同时显示加载指示器。你可以使用 Vue 的异步组件来处理这种情况。
+```
+const LoadingComponent = {
+  template: '<div>Loading...</div>'
+};
+
+const ErrorComponent = {
+  template: '<div>Error!</div>'
+};
+
+const AsyncComponent = () => ({
+  // 需要加载的组件 (应该是一个 Promise)
+  component: import('./components/AsyncComponent.vue'),
+  // 异步组件加载时使用的组件
+  loading: LoadingComponent,
+  // 加载失败时使用的组件
+  error: ErrorComponent,
+  // 渲染 loading 组件前的等待时间。默认：200ms
+  delay: 200,
+  // 最长等待时间。超出此时间则渲染 error 组件。默认：Infinity
+  timeout: 3000
+});
+const router = new VueRouter({
+  routes: [
+    {
+      path: '/async',
+      component: AsyncComponent
+    }
+  ]
+});
 ```
 #### 说说vue-router完整的导航解析流程是什么？
 1.导航被触发。
