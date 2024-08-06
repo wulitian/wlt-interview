@@ -19,15 +19,18 @@
 //     [5]
 // ]
 function getRes(candidates, target) {
-    candidates.sort((a,b)=>a-b);
+    candidates.sort((a, b) => a - b);
     let res = [];
     const getArr = (num, arr) => {
-        if (arr.length>0&&arr.reduce((x, y) => x + y) === target) {
+        if (arr.length > candidates.length) {
+            return;
+        }
+        if (arr.length > 0 && arr.reduce((x, y) => x + y) === target) {
             res.push(arr.slice());
             return;
         }
         for (let i = num; i < candidates.length; i++) {
-            if(i - 1 >= num && candidates[i] === candidates[i-1]) {
+            if (i - 1 >= num && candidates[i] === candidates[i - 1]) {
                 continue;
             }
             arr.push(candidates[i])
@@ -39,4 +42,4 @@ function getRes(candidates, target) {
     return res;
 }
 
-console.log(getRes([2,5,2,1,2], 5))
+console.log(getRes([2, 5, 2, 1, 2], 5))

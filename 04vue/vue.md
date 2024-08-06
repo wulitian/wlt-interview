@@ -423,7 +423,7 @@ export default {
 1. 监听器observer 通过object.defineProperty实现数据响应式，通过get,set实现数据响应式，判断data中的数据类型如果是对象
 2. 触发get时会进行依赖收集会将当前的watcher收集到dep中 
 3. 当数据变化时会触发set，调用dep中的notify方法通知所用使用到当前数据的watcher进行更新
-#### 你了解vue的diff算法吗？
+#### 你了解vue的 diff算法吗？
 diff 算法是一种通过同层的树节点进行比较的高效算法 比较只会在同层级进行, 不会跨层级比较在diff比较的过程中，循环从两边向中间比较。
 当数据发生改变时，订阅者watcher就会调用patch给真实的DOM打补丁
 通过isSameVnode进行判断，相同则调用patchVnode方法

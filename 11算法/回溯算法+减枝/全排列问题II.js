@@ -15,7 +15,7 @@ function getRes(numbers) {
     let used = new Array(numbers.length).fill(false);
     const getArr = (arr) => {
         if(arr.length === numbers.length) {
-            res.push(arr);
+            res.push([...arr]);
             return;
         }
         for (let i = 0; i < numbers.length; i++) {
@@ -23,7 +23,9 @@ function getRes(numbers) {
                 continue
             }
             used[i] = true;
-            getArr([...arr,numbers[i]])
+            arr.push(numbers[i]);
+            getArr(arr);
+            arr.pop();
             used[i] = false;
         }
     }
